@@ -12,4 +12,6 @@ venv/
 *.egg-info/
 *.egg
 .tox/
+.cache/
+.coverage
 

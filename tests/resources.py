@@ -5,8 +5,8 @@ import requests
 import requests_mock
 import unittest2 as unittest
 
-from restframeworkclient.connection import Api, RestResource
-from restframeworkclient import exceptions
+from drf_client.connection import Api, RestResource
+from drf_client import exceptions
 
 
 class ResourceTestCase(unittest.TestCase):

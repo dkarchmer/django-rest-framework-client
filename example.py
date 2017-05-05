@@ -2,7 +2,7 @@ import getpass
 import logging
 import sys
 from pprint import pprint
-from restframeworkclient.connection import Api as RestApi
+from drf_client.connection import Api as RestApi
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 

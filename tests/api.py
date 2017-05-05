@@ -5,8 +5,8 @@ import requests
 import requests_mock
 import unittest2 as unittest
 
-from restframeworkclient.connection import Api
-from restframeworkclient.exceptions import HttpClientError, HttpServerError
+from drf_client.connection import Api
+from drf_client.exceptions import HttpClientError, HttpServerError
 
 
 class ApiTestCase(unittest.TestCase):

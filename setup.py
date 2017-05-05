@@ -9,7 +9,7 @@ setup(name='django-rest-framework-client',
     author_email="dkarchmer@gmail.com",
     license='MIT',
     packages=[
-        'restframeworkclient',
+        'drf_client',
     ],
     install_requires=[
         'requests',

@@ -16,7 +16,7 @@ Package is based on https://github.com/samgiles/slumber, but enhanced to support
 
 ## Requirements
 
-pystrato requires the following modules.
+restframeworkclient requires the following modules.
 
     * Python 2.7+ or 3.4+
     * requests
@@ -24,7 +24,7 @@ pystrato requires the following modules.
 ## Installation
 
 ```
-pip install djangorestframeworkclient
+pip install drf_client
 ```
 
 ## Usage Guide
@@ -90,3 +90,17 @@ urlpatterns = [
 
 ```
 
+## Development
+
+To test, run python setup.py test or to run coverage analysis:
+
+```
+coverage run --source=iotile_cloud setup.py test
+coverage report -m
+```
+
+You can also use py.test:
+
+```
+py.test
+```
