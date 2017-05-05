@@ -1,0 +1,14 @@
+.idea/
+.DS_Store
+
+*.pyc
+.env
+*.log
+
+# Setup/Build
+build/
+dist/
+*.egg-info/
+*.egg
+.tox/
+

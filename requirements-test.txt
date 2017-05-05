@@ -1,0 +1,6 @@
+pytest
+unittest2
+coverage==3.7.1
+coveralls
+mock
+requests-mock
