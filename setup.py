@@ -1,8 +1,7 @@
 from setuptools import setup
-import version
 
 setup(name='django-rest-framework-client',
-    version=version.version,
+    version='0.1.0',
     description='Python client for a DjangoRestFramework based web site',
     url='https://github.com/dkarchmer/django-rest-framework-client',
     author='David Karchmer',
