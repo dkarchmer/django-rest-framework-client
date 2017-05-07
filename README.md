@@ -1,5 +1,8 @@
 # Strato Python API Package
 
+[![Build Status](https://travis-ci.org/dkarchmer/django-rest-framework-client.svg?branch=master)](https://travis-ci.org/dkarchmer/django-rest-framework-client)
+[![PyPI version](https://img.shields.io/pypi/v/django-rest-framework-client.svg)](https://pypi.python.org/pypi/django-rest-framework-client) 
+
 A python library for interacting with any Django web server base on django-rest-framework
 
 Package is based on https://github.com/samgiles/slumber, but enhanced to support tokens and other features.
@@ -24,7 +27,7 @@ restframeworkclient requires the following modules.
 ## Installation
 
 ```
-pip install drf_client
+pip install django-rest-framework-client
 ```
 
 ## Usage Guide
@@ -32,6 +35,8 @@ pip install drf_client
 Example
 
 ```
+from drf_client.connection import Api as RestApi
+
 options = {
     'DOMAIN': 'http://127.0.0.1:8000',
     'API_PREFIX': 'api/v1',
