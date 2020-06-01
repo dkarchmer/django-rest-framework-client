@@ -3,7 +3,7 @@ import json
 import mock
 import requests
 import requests_mock
-import unittest2 as unittest
+import unittest
 
 from drf_client.connection import Api
 from drf_client.exceptions import HttpClientError, HttpServerError
