@@ -8,7 +8,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-email = input('Email? ')
+username = input('Email? ')
 password = getpass.getpass()
 
 options = {
@@ -16,13 +16,14 @@ options = {
     'API_PREFIX': 'api/v1',
     'TOKEN_TYPE': 'jwt',
     'TOKEN_FORMAT': 'JWT {token}',
+    'USERNAME_KEY': 'username',
     'LOGIN': 'auth/login/',
     'LOGOUT': 'auth/logout/',
 }
 
 c = RestApi(options)
 
-ok = c.login(email=email, password=password)
+ok = c.login(username=username, password=password)
 if ok:
 
     # GET some data

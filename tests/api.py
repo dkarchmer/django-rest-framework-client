@@ -47,7 +47,7 @@ class ApiTestCase(unittest.TestCase):
         }
         m.post('https://example.com/api/v1/auth/login/', text=json.dumps(payload))
 
-        ok = self.api.login(email='user1@test.com', password='pass')
+        ok = self.api.login(username='user1@test.com', password='pass')
         self.assertTrue(ok)
         self.assertEqual(self.api.username, 'user1')
         self.assertEqual(self.api.token, 'big-token')
@@ -61,7 +61,7 @@ class ApiTestCase(unittest.TestCase):
         m.post('https://example.com/api/v1/auth/login/', text=json.dumps(payload))
         m.post('https://example.com/api/v1/auth/logout/', status_code=204)
 
-        ok = self.api.login(email='user1@test.com', password='pass')
+        ok = self.api.login(username='user1@test.com', password='pass')
         self.assertTrue(ok)
 
         self.api.logout()

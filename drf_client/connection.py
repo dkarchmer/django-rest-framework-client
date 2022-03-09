@@ -229,9 +229,13 @@ class Api(object):
     def set_token(self, token):
         self.token = token
 
-    def login(self, password, email):
+    def login(self, password, username=None):
         assert('LOGIN' in self.options)
-        data = {'email': email, 'password': password}
+        # This allows us to suport both a {'email': username} and {'username": username}
+        # Default to 'username' which is the default DRF behavior
+        username_key = self.options.get('USERNAME_KEY', 'username')
+        data = {'password': password}
+        data[username_key] = username 
         url = '{0}/{1}'.format(self.base_url, self.options['LOGIN'])
 
         payload = json.dumps(data)
