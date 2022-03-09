@@ -67,6 +67,10 @@ if ok:
 
     resp = c.myresourcename.post(data=payload)
 
+    # If the URL includes "-", add under parenthesis:
+    # GET: /api/v1/someresource/some-path/
+    my_object = c.someresource('some-path').get()
+
 ```
 
 
