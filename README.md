@@ -21,12 +21,14 @@ Package is based on https://github.com/samgiles/slumber, but enhanced to support
 
 restframeworkclient requires the following modules.
 
-    * Python 2.7+ or 3.4+
+    * Python 3.7+
     * requests
 
 ## Installation
 
-```
+```bash
+python3 -m venv .virtualenv/drf_client
+source .virtualenv/drf_client/bin/activate
 pip install django-rest-framework-client
 ```
 
@@ -42,13 +44,14 @@ options = {
     'API_PREFIX': 'api/v1',
     'TOKEN_TYPE': 'jwt',
     'TOKEN_FORMAT': 'JWT {token}',
+    'USERNAME_KEY': 'username',
     'LOGIN': 'auth/login/',
     'LOGOUT': 'auth/logout/',
 }
 
 c = RestApi(options)
 
-ok = c.login(email=email, password=password)
+ok = c.login(username=username, password=password)
 if ok:
 
     # GET some data
@@ -63,6 +66,10 @@ if ok:
     }
 
     resp = c.myresourcename.post(data=payload)
+
+    # If the URL includes "-", add under parenthesis:
+    # GET: /api/v1/someresource/some-path/
+    my_object = c.someresource('some-path').get()
 
 ```
 
@@ -99,13 +106,18 @@ urlpatterns = [
 
 To test, run python setup.py test or to run coverage analysis:
 
-```
+```bash
+python3 -m venv .virtualenv/drf_client
+source .virtualenv/drf_client/bin/activate
+pip install -r requirements-test.txt
+pip install -e .
+
 coverage run --source=iotile_cloud setup.py test
 coverage report -m
 ```
 
 You can also use py.test:
 
-```
+```bash
 py.test
 ```

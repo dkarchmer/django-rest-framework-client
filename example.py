@@ -8,7 +8,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-email = input('Email? ')
+username = input('Email? ')
 password = getpass.getpass()
 
 options = {
@@ -16,13 +16,14 @@ options = {
     'API_PREFIX': 'api/v1',
     'TOKEN_TYPE': 'jwt',
     'TOKEN_FORMAT': 'JWT {token}',
+    'USERNAME_KEY': 'username',
     'LOGIN': 'auth/login/',
     'LOGOUT': 'auth/logout/',
 }
 
 c = RestApi(options)
 
-ok = c.login(email=email, password=password)
+ok = c.login(username=username, password=password)
 if ok:
 
     # GET some data
@@ -33,7 +34,9 @@ if ok:
 
     logger.info('------------------------------')
     logger.info('------------------------------')
-    my_object = c.org('arch-internal').get()
+    # If the URL includes "-", add under parenthesis:
+    # GET: /api/v1/someresource/some-path/
+    my_object = c.someresource('some-path').get()
     pprint(my_object)
     logger.info('------------------------------')
     logger.info('------------------------------')
@@ -43,7 +46,7 @@ if ok:
         'data2': 'val2',
     }
 
-    resp = c.org.post(data=payload)
+    resp = c.someresource.post(data=payload)
     pprint(resp)
 
     logger.info('------------------------------')

@@ -1,9 +1,9 @@
 language: python
 sudo: false
 python:
-- '2.7'
-- '3.6'
 - '3.7'
+- '3.8'
+- '3.9'
 install:
 - pip install --upgrade tox-travis -r requirements-build.txt -r requirements-test.txt
 script:
