@@ -240,7 +240,7 @@ class Api(object):
 
         payload = json.dumps(data)
         r = requests.post(url, data=payload, headers=DEFAULT_HEADERS)
-        if r.status_code == 200:
+        if r.status_code in [200, 201]:
             content = json.loads(r.content.decode())
             if self.token_type in content:
                 self.token = content[self.token_type]
