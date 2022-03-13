@@ -27,8 +27,8 @@ restframeworkclient requires the following modules.
 ## Installation
 
 ```bash
-python3 -m venv .virtualenv/drf_client
-source .virtualenv/drf_client/bin/activate
+python3 -m venv ~/.virtualenv/drf_client
+source ~/.virtualenv/drf_client/bin/activate
 pip install django-rest-framework-client
 ```
 
@@ -102,25 +102,6 @@ urlpatterns = [
 
 ```
 
-## Development
-
-To test, run python setup.py test or to run coverage analysis:
-
-```bash
-python3 -m venv .virtualenv/drf_client
-source .virtualenv/drf_client/bin/activate
-pip install -r requirements-test.txt
-pip install -e .
-
-coverage run --source=iotile_cloud setup.py test
-coverage report -m
-```
-
-You can also use py.test:
-
-```bash
-py.test
-```
 ## Helpers
 
 ### BaseMain Helper
@@ -177,4 +158,39 @@ if __name__ == '__main__':
     work.main()
 ```
 
-Given the above script, 
+Given the above script, you will run it with
+
+```bash
+python myscript.py -u <USERNAME> --foo bar
+```
+
+## Development
+
+To test, run python setup.py test or to run coverage analysis:
+
+```bash
+python3 -m venv .virtualenv/drf_client
+source .virtualenv/drf_client/bin/activate
+pip install -r requirements-test.txt
+pip install -e .
+
+coverage run --source=iotile_cloud setup.py test
+coverage report -m
+```
+
+You can also use py.test:
+
+```bash
+py.test
+```
+
+## Deployment
+
+```bash
+pip install -r requirements-build.txt
+
+python setup.py sdist
+twine check dist/*
+# Publish
+twine upload dist/*
+```
