@@ -121,3 +121,60 @@ You can also use py.test:
 ```bash
 py.test
 ```
+## Helpers
+
+### BaseMain Helper
+
+This class helps write a script with a flexible template that helps avoid having to duplicate
+boiler plate code from script to script.
+
+The class assumes that most scripts include the basic folliwing flow:
+
+```
+# Parse arguments
+# Setup LOG configuration
+# Login
+# Do something after logging in
+```
+
+The opinionated class will execute the basic main flow:
+
+```python
+   # Initialize arguments and LOG in the init function
+   # Add additional arguments by implemenenting self.add_extra_args()
+   self.domain = self.get_domain()
+   self.api = Api(self.domain)
+   self.before_login()
+   ok = self.login()
+   if ok:
+       self.after_login()
+```
+
+Any of the above functions can be overwritten by derving from this class.
+
+Here is a sample script:
+
+```python
+from drf_client.helper.base_main import BaseMain
+
+class MyScript(BaseMain):
+
+    def add_extra_args(self):
+        # Add extra positional argument (as example)
+        self.parser.add_argument('foo', metavar='foo', type=str, help='RTFM')
+
+    def before_login(self):
+        logger.info('-----------')
+
+    def after_login(self):
+        # Main function to OVERWITE and do real work
+        do_some_real_work(self.api, self.args)
+
+
+if __name__ == '__main__':
+
+    work = MyScript()
+    work.main()
+```
+
+Given the above script, 
