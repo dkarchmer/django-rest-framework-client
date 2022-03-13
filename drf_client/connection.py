@@ -242,11 +242,8 @@ class Api(object):
         r = requests.post(url, data=payload, headers=DEFAULT_HEADERS)
         if r.status_code in [200, 201]:
             content = json.loads(r.content.decode())
-            if self.token_type in content:
-                self.token = content[self.token_type]
-
-            self.username = content['username']
-            logger.info('Welcome @{0} (token: {1})'.format(self.username, self.token))
+            self.token = content['token']
+            self.username = username
             return True
         else:
             logger.error('Login failed: ' + str(r.status_code) + ' ' + r.content.decode())

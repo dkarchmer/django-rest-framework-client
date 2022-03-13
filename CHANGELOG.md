@@ -1,3 +1,9 @@
+
+### v0.4.1 (2022-03-13)
+
+  * Fix BaseMain Login method
+  * Fix PYPI error
+
 ### v0.3.0 (2022-03-13)
 
   * Add missing PYPI long description

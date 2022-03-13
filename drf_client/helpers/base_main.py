@@ -18,6 +18,7 @@ class BaseMain(object):
         'API_PREFIX': 'api/v1',
         'TOKEN_TYPE': 'jwt',
         'TOKEN_FORMAT': 'JWT {token}',
+        'USERNAME_KEY': 'username',
         'LOGIN': 'auth/login/',
         'LOGOUT': 'auth/logout/',
     }
@@ -60,8 +61,7 @@ class BaseMain(object):
         4. Call after_loging to do actual work with server data
         """
         self.domain = self.get_domain()
-        self.options['DOMAIN'] = self.domain
-        self.api = RestApi(self.options)
+        self.api = RestApi(self.get_options())
         self.before_login()
         ok = self.login()
         if ok:
@@ -69,6 +69,11 @@ class BaseMain(object):
 
     # Following functions can be overwritten if needed
     # ================================================
+
+    def get_options(self):
+        options = self.options
+        options['DOMAIN'] = self.domain
+        return options
 
     def config_logging(self):
         """
@@ -99,7 +104,7 @@ class BaseMain(object):
         Get password from user and login
         """
         password = getpass.getpass()
-        ok = self.api.d1g1t_login(username=self.args.username, password=password)
+        ok = self.api.login(username=self.args.username, password=password)
         if ok:
             LOG.info('Welcome {0}'.format(self.args.username))
         return ok

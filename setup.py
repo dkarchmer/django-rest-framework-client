@@ -1,6 +1,5 @@
 import pathlib
 from setuptools import find_packages, setup
-import version
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
@@ -9,7 +8,7 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setup(name='django-rest-framework-client',
-    version=version.version,
+    version='0.4.1',
     description='Python client for a DjangoRestFramework based web site',
     long_description=README,
     long_description_content_type="text/markdown",
@@ -17,7 +16,10 @@ setup(name='django-rest-framework-client',
     author='David Karchmer',
     author_email="dkarchmer@gmail.com",
     license='MIT',
-    packages=find_packages(exclude=("tests",)),
+    packages=[
+        'drf_client',
+        'drf_client.helpers',
+    ],
     install_requires=[
         'requests',
     ],

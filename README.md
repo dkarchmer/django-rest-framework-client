@@ -189,7 +189,7 @@ py.test
 ```bash
 pip install -r requirements-build.txt
 
-python setup.py sdist
+python setup.py sdist bdist_wheel
 twine check dist/*
 # Publish
 twine upload dist/*
