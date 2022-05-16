@@ -1,6 +1,5 @@
 import sys
 import json
-import mock
 import requests
 import requests_mock
 import unittest
