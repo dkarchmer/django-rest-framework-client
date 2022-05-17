@@ -247,7 +247,10 @@ class Api(object):
         r = requests.post(url, data=payload, headers=DEFAULT_HEADERS)
         if r.status_code in [200, 201]:
             content = json.loads(r.content.decode())
-            self.token = content[self.token_type]
+            self.token = content.get(self.token_type)
+            if self.token is None:
+                # Default to "token" if token_type is not used by server
+                self.token = content.get('token')
             self.username = username
             return True
         else:
