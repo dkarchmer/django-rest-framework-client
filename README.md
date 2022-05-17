@@ -1,7 +1,7 @@
 # Django Rest Framework Python API Package
 
 [![Build Status](https://travis-ci.org/dkarchmer/django-rest-framework-client.svg?branch=master)](https://travis-ci.org/dkarchmer/django-rest-framework-client)
-[![PyPI version](https://img.shields.io/pypi/v/django-rest-framework-client.svg)](https://pypi.python.org/pypi/django-rest-framework-client) 
+[![PyPI version](https://img.shields.io/pypi/v/django-rest-framework-client.svg)](https://pypi.python.org/pypi/django-rest-framework-client)
 
 A python library for interacting with any Django web server base on django-rest-framework
 
@@ -187,6 +187,7 @@ py.test
 ## CI Deployment
 
 1. Update `setup.py` with new version
+2. Update `CHANGELOG.md` with description of new version
 2. Create new tag with same version
 
 ```

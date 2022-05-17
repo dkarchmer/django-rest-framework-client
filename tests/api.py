@@ -49,7 +49,7 @@ class ApiTestCase(unittest.TestCase):
 
         ok = self.api.login(username='user1@test.com', password='pass')
         self.assertTrue(ok)
-        self.assertEqual(self.api.username, 'user1')
+        self.assertEqual(self.api.username, 'user1@test.com')
         self.assertEqual(self.api.token, 'big-token')
 
     @requests_mock.Mocker()
@@ -161,6 +161,14 @@ class ApiTestCase(unittest.TestCase):
         m.delete('https://example.com/api/v1/test/my-detail/', text=json.dumps(result))
 
         deleted = self.api.test('my-detail').delete()
+        self.assertTrue(deleted)
+
+        result = {
+            "id": 2
+        }
+        m.delete('https://example.com/api/v1/test/my-detail2/', text=json.dumps(result))
+
+        deleted = self.api.test('my-detail2').delete(data={'foo': 'bar'})
         self.assertTrue(deleted)
 
     @requests_mock.Mocker()
