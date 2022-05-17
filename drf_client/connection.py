@@ -191,8 +191,13 @@ class RestResource(object):
         resp = requests.put(self.url(), data=payload, headers=self._get_header())
         return self._process_response(resp)
 
-    def delete(self, **kwargs):
-        resp = requests.delete(self.url(), headers=self._get_header())
+    def delete(self, data=None, **kwargs):
+        if data:
+            payload = json.dumps(data)
+        else:
+            payload = None
+
+        resp = requests.delete(self.url(), data=payload, headers=self._get_header())
         if 200 <= resp.status_code <= 299:
             if resp.status_code == 204:
                 return True
@@ -235,14 +240,14 @@ class Api(object):
         # Default to 'username' which is the default DRF behavior
         username_key = self.options.get('USERNAME_KEY', 'username')
         data = {'password': password}
-        data[username_key] = username 
+        data[username_key] = username
         url = '{0}/{1}'.format(self.base_url, self.options['LOGIN'])
 
         payload = json.dumps(data)
         r = requests.post(url, data=payload, headers=DEFAULT_HEADERS)
         if r.status_code in [200, 201]:
             content = json.loads(r.content.decode())
-            self.token = content['token']
+            self.token = content[self.token_type]
             self.username = username
             return True
         else:

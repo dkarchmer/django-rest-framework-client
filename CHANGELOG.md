@@ -1,4 +1,8 @@
 
+### v0.5.0 (2022-05-16)
+
+  * Allow `delete()` method to accept optional `payload`
+
 ### v0.4.1 (2022-03-13)
 
   * Fix BaseMain Login method
@@ -18,7 +22,7 @@
 ### v0.1.2 (2020-06-01)
 
   * Remove dependency on unitest2
-  
+
 ### v0.1.0 (2017-05-06)
 
   * First release
