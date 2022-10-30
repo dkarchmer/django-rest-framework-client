@@ -21,6 +21,7 @@ class BaseMain(object):
         'USERNAME_KEY': 'username',
         'LOGIN': 'auth/login/',
         'LOGOUT': 'auth/logout/',
+        'USE_DASHES': False,
     }
     logging_level = logging.INFO
 

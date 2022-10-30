@@ -19,6 +19,7 @@ options = {
     'USERNAME_KEY': 'username',
     'LOGIN': 'auth/login/',
     'LOGOUT': 'auth/logout/',
+    'USE_DASHES': False,
 }
 
 c = RestApi(options)

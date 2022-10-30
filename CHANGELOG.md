@@ -1,3 +1,7 @@
+### v0.6.0 (2022-10-30)
+
+  * Add USE_DASHES option to automatically replace underscores ("_") with dashes ("-")
+  * Refactor to pass options to Resource class
 
 ### v0.5.0 (2022-05-16)
 

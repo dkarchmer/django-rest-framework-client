@@ -15,6 +15,7 @@ Usage:
        'TOKEN_FORMAT': 'JWT {token}',
        'LOGIN': 'auth/api-jwt-auth/',
        'LOGOUT': 'auth/logout/',
+       'USE_DASHES': False,
     }
 
     api = RestApi(options)
@@ -34,6 +35,15 @@ API_PREFIX = 'api/v1'
 DEFAULT_HEADERS = {'Content-Type': 'application/json'}
 DEFAULT_TOKEN_TYPE = 'jwt'
 DEFAULT_TOKEN_FORMAT = 'JWT {token}'
+DEFAULT_OPTIONS = {
+       'DOMAIN': 'http://example.com',
+       'API_PREFIX': 'api/v1',
+       'TOKEN_TYPE': 'jwt',
+       'TOKEN_FORMAT': 'JWT {token}',
+       'LOGIN': 'auth/login/',
+       'LOGOUT': 'auth/logout/',
+       'USE_DASHES': False,
+    }
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +56,14 @@ class RestResource(object):
     which may or may not have children.
     """
     _store = {}
+    _options = {}
 
     def __init__(self, *args, **kwargs):
         self._store = kwargs
+        if 'options' in self._store:
+            self._options = self._store['options']
+        else:
+            self.options = DEFAULT_OPTIONS
         if 'use_token' not in self._store:
             self._store['use_token'] = False
 
@@ -63,13 +78,13 @@ class RestResource(object):
         kwargs = {
             'token': self._store['token'],
             'use_token': self._store['use_token'],
-            'token_format': self._store['token_format'],
-            'base_url': self._store['base_url']
+            'base_url': self._store['base_url'],
+            'options': self._options,
         }
 
         new_url = self._store['base_url']
         if id is not None:
-            new_url = '{0}{1}/'.format(new_url, id)
+            new_url = f'{new_url}{id}/'
 
         if not new_url.endswith('/'):
             new_url += '/'
@@ -84,6 +99,8 @@ class RestResource(object):
             raise AttributeError(item)
 
         kwargs = self._copy_kwargs(self._store)
+        if self._options.get('USE_DASHES', False):
+            item = item.replace("_", "-")
         kwargs.update({'base_url': '{0}{1}/'.format(self._store["base_url"], item)})
 
         return self._get_resource(**kwargs)
@@ -152,7 +169,7 @@ class RestResource(object):
         if self._store['use_token']:
             if not "token" in self._store:
                 raise RestBaseException('No Token')
-            authorization_str = self._store['token_format'].format(token=self._store["token"])
+            authorization_str = self._options['TOKEN_FORMAT'].format(token=self._store["token"])
             headers['Authorization'] = authorization_str
 
         return headers
@@ -211,25 +228,22 @@ class RestResource(object):
 
 class Api(object):
     token = None
-    token_type = DEFAULT_TOKEN_TYPE
-    token_format = DEFAULT_TOKEN_FORMAT
     resource_class = RestResource
     use_token = True
     options = None
 
     def __init__(self, options):
         self.options = options
-        if 'DOMAIN' not in options:
+        if 'DOMAIN' not in self.options:
             raise RestBaseException("DOMAIN is missing in options")
 
-        if 'API_PREFIX' not in options:
-            options['API_PREFIX'] = API_PREFIX
-        self.base_url = '{0}/{1}'.format(self.options['DOMAIN'], options['API_PREFIX'] )
-        if 'TOKEN_TYPE' in options:
-            self.token_type = options['TOKEN_TYPE']
-        if 'TOKEN_FORMAT' in options:
-            self.token_format = options['TOKEN_FORMAT']
-
+        if 'API_PREFIX' not in self.options:
+            self.options['API_PREFIX'] = API_PREFIX
+        self.base_url = '{0}/{1}'.format(self.options['DOMAIN'], self.options['API_PREFIX'] )
+        if 'TOKEN_TYPE' not in self.options:
+            self.options['TOKEN_TYPE'] = DEFAULT_TOKEN_TYPE
+        if 'TOKEN_FORMAT' not in self.options:
+            self.options['TOKEN_FORMAT'] = DEFAULT_TOKEN_FORMAT
 
     def set_token(self, token):
         self.token = token
@@ -247,7 +261,7 @@ class Api(object):
         r = requests.post(url, data=payload, headers=DEFAULT_HEADERS)
         if r.status_code in [200, 201]:
             content = json.loads(r.content.decode())
-            self.token = content.get(self.token_type)
+            self.token = content.get(self.options['TOKEN_TYPE'])
             if self.token is None:
                 # Default to "token" if token_type is not used by server
                 self.token = content.get('token')
@@ -259,13 +273,13 @@ class Api(object):
 
     def logout(self):
         assert('LOGOUT' in self.options)
-        url = '{0}/{1}'.format(self.base_url, self.options['LOGOUT'])
+        url = f"{self.base_url}/{self.options['LOGOUT']}"
         headers = DEFAULT_HEADERS
-        headers['Authorization'] = self.token_format.format(token=self.token)
+        headers['Authorization'] = self.options['TOKEN_FORMAT'].format(token=self.token)
 
         r = requests.post(url, headers=headers)
         if r.status_code == 204:
-            logger.info('Goodbye @{0}'.format(self.username))
+            logger.info(f'Goodbye @{self.username}')
             self.username = None
             self.token = None
         else:
@@ -282,13 +296,15 @@ class Api(object):
         if item.startswith("_"):
             raise AttributeError(item)
 
+        if self.options.get('USE_DASHES', False):
+            item = item.replace("_", "-")
+
         kwargs = {
             'token': self.token,
-            'base_url': self.base_url,
+            'base_url': f'{self.base_url}/{item}/',
             'use_token': self.use_token,
-            'token_format': self.token_format,
+            'options': self.options,
         }
-        kwargs.update({'base_url': '{0}/{1}/'.format(kwargs['base_url'], item)})
 
         return self._get_resource(**kwargs)
 
