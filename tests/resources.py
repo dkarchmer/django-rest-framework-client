@@ -12,10 +12,19 @@ from drf_client import exceptions
 class ResourceTestCase(unittest.TestCase):
 
     def setUp(self):
+        self.options = {
+            'DOMAIN': "https://example.com",
+            'API_PREFIX': 'api/v1',
+            'TOKEN_TYPE': 'jwt',
+            'TOKEN_FORMAT': 'JWT {token}',
+            'USERNAME_KEY': 'username',
+            'LOGIN': 'auth/login/',
+            'LOGOUT': 'auth/logout/',
+            'USE_DASHES': False,
+        }
         self.base_resource = RestResource(base_url="https://example.com/api/v1/test/",
                                           use_token=True,
-                                          token_format='JWT {token}',
-                                          token_type='jwt',
+                                          options=self.options,
                                           token='my-token')
 
     def test_url(self):

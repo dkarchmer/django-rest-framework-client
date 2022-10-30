@@ -20,6 +20,7 @@ class ApiTestCase(unittest.TestCase):
             'TOKEN_FORMAT': 'JWT {token}',
             'LOGIN': 'auth/login/',
             'LOGOUT': 'auth/logout/',
+            'USE_DASHES': False,
         }
 
         self.api = Api(options=options)
@@ -31,7 +32,8 @@ class ApiTestCase(unittest.TestCase):
 
         self.assertEqual(self.api.base_url, 'https://example.com/api/v1')
         self.assertTrue(self.api.use_token)
-        self.assertEqual(self.api.token_type, 'jwt')
+        self.assertEqual(self.api.options['TOKEN_TYPE'], 'jwt')
+        self.assertEqual(self.api.options['TOKEN_FORMAT'], 'JWT {token}')
 
     def test_set_token(self):
 
@@ -98,9 +100,24 @@ class ApiTestCase(unittest.TestCase):
         }
         m.get('https://example.com/api/v1/test/my-detail/action/', text=json.dumps(payload))
 
-        resp = self.api.test('my-detail').action.url()
-        self.assertEqual(resp, 'https://example.com/api/v1/test/my-detail/action/')
+        # resp = self.api.test('my-detail').action.url()
+        # self.assertEqual(resp, 'https://example.com/api/v1/test/my-detail/action/')
         resp = self.api.test('my-detail').action.get()
+        self.assertEqual(resp, {'a': 'b', 'c': 'd'})
+
+    @requests_mock.Mocker()
+    def test_get_with_use_dashes(self, m):
+        """test that we can replace underscore with dashes."""
+        self.api.options['USE_DASHES'] = True
+        payload = {
+            "a": "b",
+            "c": "d"
+        }
+        m.get('https://example.com/api/v1/test-one/my-detail/action/', text=json.dumps(payload))
+
+        # resp = self.api.test('my-detail').action.url()
+        # self.assertEqual(resp, 'https://example.com/api/v1/test/my-detail/action/')
+        resp = self.api.test_one.my_detail.action.get()
         self.assertEqual(resp, {'a': 'b', 'c': 'd'})
 
     @requests_mock.Mocker()

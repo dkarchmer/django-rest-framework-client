@@ -47,6 +47,7 @@ options = {
     'USERNAME_KEY': 'username',
     'LOGIN': 'auth/login/',
     'LOGOUT': 'auth/logout/',
+    'USE_DASHES': False,    # Set to True to tell API to replace undercore ("_") with dashes ("-")
 }
 
 c = RestApi(options)

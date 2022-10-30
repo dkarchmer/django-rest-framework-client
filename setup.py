@@ -8,7 +8,7 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setup(name='django-rest-framework-client',
-    version='0.5.0',
+    version='0.6.0',
     description='Python client for a DjangoRestFramework based web site',
     long_description=README,
     long_description_content_type="text/markdown",
@@ -23,15 +23,15 @@ setup(name='django-rest-framework-client',
     install_requires=[
         'requests',
     ],
-    python_requires=">=3.7,<4",
+    python_requires=">=3.8,<4",
     keywords=["django", "djangorestframework", "drf", "rest-client",],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
