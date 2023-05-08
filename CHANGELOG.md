@@ -1,3 +1,7 @@
+### v0.7.0 (2023-05-08)
+
+  * Resource class methods respect additional `**kwargs` parameters and pass them on to the underlying `requests` methods
+
 ### v0.6.0 (2022-10-30)
 
   * Add USE_DASHES option to automatically replace underscores ("_") with dashes ("-")
