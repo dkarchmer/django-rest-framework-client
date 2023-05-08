@@ -3,6 +3,8 @@ import logging
 import argparse
 import getpass
 
+from urllib.parse import urlparse
+
 from drf_client.connection import Api as RestApi, DEFAULT_HEADERS
 from drf_client.exceptions import HttpClientError
 
@@ -96,7 +98,7 @@ class BaseMain(object):
         """
         Figure out server domain URL based on --server and --customer args
         """
-        if 'https://' not in self.args.server:
+        if not urlparse(self.args.server).scheme:
             return f'https://{self.args.server}'
         return self.args.server
 
