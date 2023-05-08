@@ -48,7 +48,7 @@ DEFAULT_OPTIONS = {
 logger = logging.getLogger(__name__)
 
 
-class RestResource(object):
+class RestResource:
     """
     Resource provides the main functionality behind a Django Rest Framework based API. It handles the
     attribute -> url, kwarg -> query param, and other related behind the scenes
@@ -164,7 +164,7 @@ class RestResource(object):
             url += '?{0}'.format(args)
         return url
 
-    def _get_header(self):
+    def _get_headers(self):
         headers = DEFAULT_HEADERS
         if self._store['use_token']:
             if not "token" in self._store:
@@ -174,47 +174,41 @@ class RestResource(object):
 
         return headers
 
-    def get(self, **kwargs):
+    def get(self, extra_headers: dict = None, **kwargs):
         args = None
         if 'extra' in kwargs:
             args = kwargs['extra']
-        resp = requests.get(self.url(args), headers=self._get_header())
+        headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
+
+        resp = requests.get(self.url(args), headers=headers)
         return self._process_response(resp)
 
-    def post(self, data=None, **kwargs):
-        if data:
-            payload = json.dumps(data)
-        else:
-            payload = None
+    def post(self, data=None, extra_headers: dict = None, **kwargs):
+        payload = json.dumps(data) if data else None
+        headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
-        resp = requests.post(self.url(), data=payload, headers=self._get_header(), **kwargs)
+        resp = requests.post(self.url(), data=payload, headers=headers, **kwargs)
         return self._process_response(resp)
 
-    def patch(self, data=None, **kwargs):
-        if data:
-            payload = json.dumps(data)
-        else:
-            payload = None
+    def patch(self, data=None, extra_headers: dict = None, **kwargs):
+        payload = json.dumps(data) if data else None
+        headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
-        resp = requests.patch(self.url(), data=payload, headers=self._get_header(), **kwargs)
+        resp = requests.patch(self.url(), data=payload, headers=headers, **kwargs)
         return self._process_response(resp)
 
-    def put(self, data=None, **kwargs):
-        if data:
-            payload = json.dumps(data)
-        else:
-            payload = None
+    def put(self, data=None, extra_headers: dict = None, **kwargs):
+        payload = json.dumps(data) if data else None
+        headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
-        resp = requests.put(self.url(), data=payload, headers=self._get_header(), **kwargs)
+        resp = requests.put(self.url(), data=payload, headers=headers, **kwargs)
         return self._process_response(resp)
 
-    def delete(self, data=None, **kwargs):
-        if data:
-            payload = json.dumps(data)
-        else:
-            payload = None
+    def delete(self, data=None, extra_headers: dict = None, **kwargs):
+        payload = json.dumps(data) if data else None
+        headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
-        resp = requests.delete(self.url(), data=payload, headers=self._get_header(), **kwargs)
+        resp = requests.delete(self.url(), data=payload, headers=headers, **kwargs)
         if 200 <= resp.status_code <= 299:
             if resp.status_code == 204:
                 return True
@@ -226,7 +220,8 @@ class RestResource(object):
     def _get_resource(self, **kwargs):
         return self.__class__(**kwargs)
 
-class Api(object):
+
+class Api:
     token = None
     resource_class = RestResource
     use_token = True

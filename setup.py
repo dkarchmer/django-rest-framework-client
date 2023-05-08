@@ -23,7 +23,7 @@ setup(name='django-rest-framework-client',
     install_requires=[
         'requests',
     ],
-    python_requires=">=3.8,<4",
+    python_requires=">=3.10,<4",
     keywords=["django", "djangorestframework", "drf", "rest-client",],
     classifiers=[
         "Programming Language :: Python",
