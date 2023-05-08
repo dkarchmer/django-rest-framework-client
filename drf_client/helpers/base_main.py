@@ -11,7 +11,7 @@ from drf_client.exceptions import HttpClientError
 LOG = logging.getLogger(__name__)
 
 
-class BaseMain(object):
+class BaseMain:
     parser = None
     args = None
     api = None

@@ -38,7 +38,7 @@ class ResourceTestCase(unittest.TestCase):
             'Authorization': 'JWT my-token'
         }
 
-        headers = self.base_resource._get_header()
+        headers = self.base_resource._get_headers()
         self.assertEqual(headers, expected_headers)
 
     @requests_mock.Mocker()
