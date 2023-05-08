@@ -187,7 +187,7 @@ class RestResource(object):
         else:
             payload = None
 
-        resp = requests.post(self.url(), data=payload, headers=self._get_header())
+        resp = requests.post(self.url(), data=payload, headers=self._get_header(), **kwargs)
         return self._process_response(resp)
 
     def patch(self, data=None, **kwargs):
@@ -196,7 +196,7 @@ class RestResource(object):
         else:
             payload = None
 
-        resp = requests.patch(self.url(), data=payload, headers=self._get_header())
+        resp = requests.patch(self.url(), data=payload, headers=self._get_header(), **kwargs)
         return self._process_response(resp)
 
     def put(self, data=None, **kwargs):
@@ -205,7 +205,7 @@ class RestResource(object):
         else:
             payload = None
 
-        resp = requests.put(self.url(), data=payload, headers=self._get_header())
+        resp = requests.put(self.url(), data=payload, headers=self._get_header(), **kwargs)
         return self._process_response(resp)
 
     def delete(self, data=None, **kwargs):
@@ -214,7 +214,7 @@ class RestResource(object):
         else:
             payload = None
 
-        resp = requests.delete(self.url(), data=payload, headers=self._get_header())
+        resp = requests.delete(self.url(), data=payload, headers=self._get_header(), **kwargs)
         if 200 <= resp.status_code <= 299:
             if resp.status_code == 204:
                 return True
