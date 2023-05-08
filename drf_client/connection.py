@@ -183,29 +183,29 @@ class RestResource:
         resp = requests.get(self.url(args), headers=headers)
         return self._process_response(resp)
 
-    def post(self, data=None, extra_headers: dict = None, **kwargs):
-        payload = json.dumps(data) if data else None
+    def post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+        payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
         resp = requests.post(self.url(), data=payload, headers=headers, **kwargs)
         return self._process_response(resp)
 
     def patch(self, data=None, extra_headers: dict = None, **kwargs):
-        payload = json.dumps(data) if data else None
+        payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
         resp = requests.patch(self.url(), data=payload, headers=headers, **kwargs)
         return self._process_response(resp)
 
     def put(self, data=None, extra_headers: dict = None, **kwargs):
-        payload = json.dumps(data) if data else None
+        payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
         resp = requests.put(self.url(), data=payload, headers=headers, **kwargs)
         return self._process_response(resp)
 
     def delete(self, data=None, extra_headers: dict = None, **kwargs):
-        payload = json.dumps(data) if data else None
+        payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
         resp = requests.delete(self.url(), data=payload, headers=headers, **kwargs)
