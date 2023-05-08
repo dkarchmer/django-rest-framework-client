@@ -1,6 +1,7 @@
 ### v0.7.0 (2023-05-08)
 
   * Resource class methods respect additional `**kwargs` parameters and pass them on to the underlying `requests` methods
+  * Fix to support `http://` schema in server url
 
 ### v0.6.0 (2022-10-30)
 
