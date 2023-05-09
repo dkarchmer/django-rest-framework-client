@@ -1,6 +1,5 @@
 # Django Rest Framework Python API Package
 
-[![Build Status](https://travis-ci.org/dkarchmer/django-rest-framework-client.svg?branch=master)](https://travis-ci.org/dkarchmer/django-rest-framework-client)
 [![PyPI version](https://img.shields.io/pypi/v/django-rest-framework-client.svg)](https://pypi.python.org/pypi/django-rest-framework-client)
 
 A python library for interacting with any Django web server base on django-rest-framework
@@ -21,7 +20,7 @@ Package is based on https://github.com/samgiles/slumber, but enhanced to support
 
 restframeworkclient requires the following modules.
 
-    * Python 3.7+
+    * Python 3.9+
     * requests
 
 ## Installation
