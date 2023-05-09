@@ -175,13 +175,6 @@ source .virtualenv/drf_client/bin/activate
 pip install -r requirements-test.txt
 pip install -e .
 
-coverage run --source=iotile_cloud setup.py test
-coverage report -m
-```
-
-You can also use py.test:
-
-```bash
 py.test
 ```
 
