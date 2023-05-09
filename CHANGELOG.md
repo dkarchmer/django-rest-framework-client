@@ -1,3 +1,9 @@
+### v0.7.0 (2023-05-08)
+
+  * Migrated to Python 3.10, Python 2 is not supported anymore
+  * Resource class methods respect additional `**kwargs` and `extra_headers` parameters and pass them on to the underlying `requests` methods
+  * Fix to support `http://` schema in the server url
+
 ### v0.6.0 (2022-10-30)
 
   * Add USE_DASHES option to automatically replace underscores ("_") with dashes ("-")
