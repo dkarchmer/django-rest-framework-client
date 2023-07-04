@@ -1,3 +1,8 @@
+### v0.8.0 (2023-07-04)
+
+  * Remove support for Python 3.8.
+  * Add set of `raw_*` methods that do not process results.
+
 ### v0.7.0 (2023-05-08)
 
   * Migrated to Python 3.10, Python 2 is not supported anymore

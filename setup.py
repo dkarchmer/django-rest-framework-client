@@ -8,7 +8,7 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setup(name='django-rest-framework-client',
-    version='0.7.0',
+    version='0.8.0',
     description='Python client for a DjangoRestFramework based web site',
     long_description=README,
     long_description_content_type="text/markdown",
@@ -28,7 +28,6 @@ setup(name='django-rest-framework-client',
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
