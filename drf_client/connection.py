@@ -174,41 +174,66 @@ class RestResource:
 
         return headers
 
-    def get(self, extra_headers: dict = None, **kwargs):
+    def raw_get(self, extra_headers: dict = None, **kwargs):
+        """Call get and return raw request respond."""
         args = None
         if 'extra' in kwargs:
             args = kwargs['extra']
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
-        resp = requests.get(self.url(args), headers=headers)
+        return requests.get(self.url(args), headers=headers)
+
+    def get(self, extra_headers: dict = None, **kwargs):
+        """Call get and process respond."""
+        resp = self.raw_get(extra_headers, **kwargs)
         return self._process_response(resp)
+
+    def raw_post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+        """Call requests post and return raw respond."""
+        payload = json.dumps(data) if data and "files" not in kwargs else data
+        headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
+
+        return requests.post(self.url(), data=payload, headers=headers, **kwargs)
 
     def post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+        """Call post and process respond."""
+        resp = self.raw_post(data, extra_headers, **kwargs)
+        return self._process_response(resp)
+
+    def raw_patch(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call patch and return raw request respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
-        resp = requests.post(self.url(), data=payload, headers=headers, **kwargs)
-        return self._process_response(resp)
+        return requests.patch(self.url(), data=payload, headers=headers, **kwargs)
 
     def patch(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call patch and process respond."""
+        resp = self.raw_patch(data, extra_headers, **kwargs)
+        return self._process_response(resp)
+
+    def raw_put(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call Put and return raw request respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
-        resp = requests.patch(self.url(), data=payload, headers=headers, **kwargs)
-        return self._process_response(resp)
+        return requests.put(self.url(), data=payload, headers=headers, **kwargs)
 
     def put(self, data=None, extra_headers: dict = None, **kwargs):
-        payload = json.dumps(data) if data and "files" not in kwargs else data
-        headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
-
-        resp = requests.put(self.url(), data=payload, headers=headers, **kwargs)
+        """Call Put and process respond."""
+        resp = self.raw_put(data, extra_headers, **kwargs)
         return self._process_response(resp)
 
-    def delete(self, data=None, extra_headers: dict = None, **kwargs):
+    def raw_delete(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call Delete and return raw request respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
 
-        resp = requests.delete(self.url(), data=payload, headers=headers, **kwargs)
+        return requests.delete(self.url(), data=payload, headers=headers, **kwargs)
+
+    def delete(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call Delete and process respond. Return True if ok"""
+        resp = self.raw_delete(data, extra_headers, **kwargs)
         if 200 <= resp.status_code <= 299:
             if resp.status_code == 204:
                 return True
