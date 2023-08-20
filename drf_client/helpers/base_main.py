@@ -1,12 +1,10 @@
-import sys
-import logging
 import argparse
 import getpass
-
+import logging
+import sys
 from urllib.parse import urlparse
 
-from drf_client.connection import Api as RestApi, DEFAULT_HEADERS
-from drf_client.exceptions import HttpClientError
+from .facade import Facade
 
 LOG = logging.getLogger(__name__)
 
@@ -16,14 +14,14 @@ class BaseMain:
     args = None
     api = None
     options = {
-        'DOMAIN': None,
-        'API_PREFIX': 'api/v1',
-        'TOKEN_TYPE': 'jwt',
-        'TOKEN_FORMAT': 'JWT {token}',
-        'USERNAME_KEY': 'username',
-        'LOGIN': 'auth/login/',
-        'LOGOUT': 'auth/logout/',
-        'USE_DASHES': False,
+        "DOMAIN": None,
+        "API_PREFIX": "api/v1",
+        "TOKEN_TYPE": "jwt",
+        "TOKEN_FORMAT": "JWT {token}",
+        "USERNAME_KEY": "username",
+        "LOGIN": "auth/login/",
+        "LOGOUT": "auth/logout/",
+        "USE_DASHES": False,
     }
     logging_level = logging.INFO
 
@@ -38,12 +36,19 @@ class BaseMain:
         """
         self.parser = argparse.ArgumentParser(description=__doc__)
         self.parser.add_argument(
-            '-u', '--user', dest='username', type=str, required=True,
-            help='Username used for login'
+            "-u",
+            "--user",
+            dest="username",
+            type=str,
+            required=True,
+            help="Username used for login",
         )
         self.parser.add_argument(
-            '--server', dest='server', type=str, required=True,
-            help='Server Domain Name to use'
+            "--server",
+            dest="server",
+            type=str,
+            required=True,
+            help="Server Domain Name to use",
         )
 
         self.add_extra_args()
@@ -64,7 +69,9 @@ class BaseMain:
         4. Call after_loging to do actual work with server data
         """
         self.domain = self.get_domain()
-        self.api = RestApi(self.get_options())
+        # Create a static pointer to the API for global access
+        Facade.initialize_api(options=self.get_options(), args=self.args)
+        self.api = Facade.api
         self.before_login()
         ok = self.login()
         if ok:
@@ -75,7 +82,7 @@ class BaseMain:
 
     def get_options(self):
         options = self.options
-        options['DOMAIN'] = self.domain
+        options["DOMAIN"] = self.domain
         return options
 
     def config_logging(self):
@@ -83,9 +90,11 @@ class BaseMain:
         Overwrite to change the way the logging package is configured
         :return: Nothing
         """
-        logging.basicConfig(level=self.logging_level,
-                            format='[%(asctime)-15s] %(levelname)-6s %(message)s',
-                            datefmt='%d/%b/%Y %H:%M:%S')
+        logging.basicConfig(
+            level=self.logging_level,
+            format="[%(asctime)-15s] %(levelname)-6s %(message)s",
+            datefmt="%d/%b/%Y %H:%M:%S",
+        )
 
     def add_extra_args(self):
         """
@@ -99,7 +108,7 @@ class BaseMain:
         Figure out server domain URL based on --server and --customer args
         """
         if not urlparse(self.args.server).scheme:
-            return f'https://{self.args.server}'
+            return f"https://{self.args.server}"
         return self.args.server
 
     def login(self) -> bool:
@@ -109,7 +118,7 @@ class BaseMain:
         password = getpass.getpass()
         ok = self.api.login(username=self.args.username, password=password)
         if ok:
-            LOG.info('Welcome {0}'.format(self.args.username))
+            LOG.info("Welcome {0}".format(self.args.username))
         return ok
 
     def before_login(self):
@@ -125,4 +134,4 @@ class BaseMain:
         This function MUST be overwritten to do actual work after logging into the Server
         :return: Nothing
         """
-        LOG.warning('No actual work done')
+        LOG.warning("No actual work done")
