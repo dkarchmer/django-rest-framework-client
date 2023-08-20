@@ -1,6 +1,6 @@
 import pathlib
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 # The directory containing this file
 HERE = pathlib.Path(__file__).parent
@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="django-rest-framework-client",
-    version="0.8.0",
+    version="0.9.0",
     description="Python client for a DjangoRestFramework based web site",
     long_description=README,
     long_description_content_type="text/markdown",
