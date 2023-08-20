@@ -1,5 +1,3 @@
-
-
 class RestBaseException(Exception):
     """
     All Rest exceptions inherit from this exception.

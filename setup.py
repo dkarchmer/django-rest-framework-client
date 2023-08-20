@@ -1,4 +1,5 @@
 import pathlib
+
 from setuptools import find_packages, setup
 
 # The directory containing this file
@@ -7,24 +8,30 @@ HERE = pathlib.Path(__file__).parent
 # The text of the README file
 README = (HERE / "README.md").read_text()
 
-setup(name='django-rest-framework-client',
-    version='0.8.0',
-    description='Python client for a DjangoRestFramework based web site',
+setup(
+    name="django-rest-framework-client",
+    version="0.8.0",
+    description="Python client for a DjangoRestFramework based web site",
     long_description=README,
     long_description_content_type="text/markdown",
-    url='https://github.com/dkarchmer/django-rest-framework-client',
-    author='David Karchmer',
+    url="https://github.com/dkarchmer/django-rest-framework-client",
+    author="David Karchmer",
     author_email="dkarchmer@gmail.com",
-    license='MIT',
+    license="MIT",
     packages=[
-        'drf_client',
-        'drf_client.helpers',
+        "drf_client",
+        "drf_client.helpers",
     ],
     install_requires=[
-        'requests',
+        "requests",
     ],
     python_requires=">=3.10,<4",
-    keywords=["django", "djangorestframework", "drf", "rest-client",],
+    keywords=[
+        "django",
+        "djangorestframework",
+        "drf",
+        "rest-client",
+    ],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
@@ -35,6 +42,7 @@ setup(name='django-rest-framework-client',
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Topic :: Software Development :: Libraries :: Python Modules"
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    zip_safe=False)
+    zip_safe=False,
+)

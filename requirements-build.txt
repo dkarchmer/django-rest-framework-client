@@ -3,3 +3,5 @@ twine==3.2.0
 setuptools>=40.8.0
 wheel
 tox
+isort==5.12.0
+black==23.7.0

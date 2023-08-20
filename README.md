@@ -137,6 +137,7 @@ Here is a sample script:
 
 ```python
 from drf_client.helper.base_main import BaseMain
+from drf_client.helper.facade import Facade
 
 class MyScript(BaseMain):
 
@@ -149,7 +150,9 @@ class MyScript(BaseMain):
 
     def after_login(self):
         # Main function to OVERWITE and do real work
-        do_some_real_work(self.api, self.args)
+        resp = self.api.foo.bar.get()
+        # You can also access the API from the global Facade
+        resp = Facade.api.foo.bar.get()
 
 
 if __name__ == '__main__':
