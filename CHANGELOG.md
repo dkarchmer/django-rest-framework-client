@@ -1,3 +1,8 @@
+### v0.9.0 (2023-08-20)
+
+  * Add isort and Black as formatter
+  * Add static BaseFacade class to allow access to API class and BaseMain options
+
 ### v0.8.0 (2023-07-04)
 
   * Remove support for Python 3.8.
