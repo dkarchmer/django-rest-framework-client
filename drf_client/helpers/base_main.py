@@ -4,12 +4,22 @@ import logging
 import sys
 from urllib.parse import urlparse
 
-from .facade import Facade
+from .base_facade import BaseFacade
 
 LOG = logging.getLogger(__name__)
 
 
 class BaseMain:
+    """Boiler plate code for basic scripts.
+
+    The class assumes that most scripts include the basic following flow:
+
+    - Parse arguments
+    - Setup LOG configuration
+    - Login
+    - Do something after logging in
+"""
+
     parser = None
     args = None
     api = None
@@ -55,8 +65,10 @@ class BaseMain:
 
         self.args = self.parser.parse_args()
         self.config_logging()
+        self.domain = ""
 
     def _critical_exit(self, msg):
+        """Exit with an error."""
         LOG.error(msg)
         sys.exit(1)
 
@@ -70,8 +82,8 @@ class BaseMain:
         """
         self.domain = self.get_domain()
         # Create a static pointer to the API for global access
-        Facade.initialize_api(options=self.get_options(), args=self.args)
-        self.api = Facade.api
+        BaseFacade.initialize_api(options=self.get_options(), args=self.args)
+        self.api = BaseFacade.api
         self.before_login()
         ok = self.login()
         if ok:
@@ -81,6 +93,7 @@ class BaseMain:
     # ================================================
 
     def get_options(self):
+        """Add domain to Api options."""
         options = self.options
         options["DOMAIN"] = self.domain
         return options

@@ -1,3 +1,7 @@
+### v0.9.1 (2023-08-20)
+
+  * Fix bug using old Facade instead of BaseFacade
+
 ### v0.9.0 (2023-08-20)
 
   * Add isort and Black as formatter
