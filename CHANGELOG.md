@@ -1,3 +1,7 @@
+### v0.9.2 (2023-08-25)
+
+  * Fix bug using BaseFacade
+
 ### v0.9.1 (2023-08-20)
 
   * Fix bug using old Facade instead of BaseFacade

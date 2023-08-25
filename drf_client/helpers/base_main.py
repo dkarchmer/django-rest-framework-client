@@ -82,7 +82,7 @@ class BaseMain:
         """
         self.domain = self.get_domain()
         # Create a static pointer to the API for global access
-        BaseFacade.initialize_api(options=self.get_options(), args=self.args)
+        BaseFacade.initialize_api(api_options=self.get_options(), cmd_args=self.args)
         self.api = BaseFacade.api
         self.before_login()
         ok = self.login()
