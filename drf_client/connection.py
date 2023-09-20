@@ -27,6 +27,7 @@ import json
 import logging
 
 import requests
+import getpass
 
 from .exceptions import *
 
@@ -311,6 +312,14 @@ class Api:
 
         payload = json.dumps(data)
         r = requests.post(url, data=payload, headers=DEFAULT_HEADERS)
+
+        if r.status_code == 401:
+            logger.info('This server requires multi-factor authentication:')
+            otp = getpass.getpass('MFA:')
+            otp_token = r.json()['otp_token']
+            otp_data = {'otp_token': otp_token, 'otp': otp}
+            r = requests.post(url, data=otp_data)
+
         if r.status_code in [200, 201]:
             content = json.loads(r.content.decode())
             self.token = content.get(self.options["TOKEN_TYPE"])
