@@ -50,8 +50,16 @@ class BaseMain:
             "--user",
             dest="username",
             type=str,
-            required=True,
+            required=False,
             help="Username used for login",
+        )
+        self.parser.add_argument(
+            "-t",
+            "--token",
+            dest="token",
+            type=str,
+            required=False,
+            help="Bearer Token",
         )
         self.parser.add_argument(
             "--server",
@@ -72,6 +80,12 @@ class BaseMain:
         LOG.error(msg)
         sys.exit(1)
 
+    def validate_auth_arguments(self):
+        if self.args.token and self.args.username:
+            self._critical_exit("username and token cannot be set together.")
+        elif not self.args.token and not self.args.username:
+            self._critical_exit("username or token must be provided.")
+
     def main(self):
         """
         Main function to call to initiate execution.
@@ -84,6 +98,7 @@ class BaseMain:
         # Create a static pointer to the API for global access
         BaseFacade.initialize_api(api_options=self.get_options(), cmd_args=self.args)
         self.api = BaseFacade.api
+        self.validate_auth_arguments()
         self.before_login()
         ok = self.login()
         if ok:
@@ -128,10 +143,14 @@ class BaseMain:
         """
         Get password from user and login
         """
-        password = getpass.getpass()
-        ok = self.api.login(username=self.args.username, password=password)
-        if ok:
-            LOG.info("Welcome {0}".format(self.args.username))
+        if self.args.token:
+            self.api.set_token(self.args.token)
+            ok = True
+        else:
+            password = getpass.getpass()
+            ok = self.api.login(username=self.args.username, password=password)
+            if ok:
+                LOG.info("Welcome {0}".format(self.args.username))
         return ok
 
     def before_login(self):
