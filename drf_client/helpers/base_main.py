@@ -145,12 +145,13 @@ class BaseMain:
         """
         if self.args.token:
             self.api.set_token(self.args.token)
+            LOG.info("Bearer Token has been set.")
             ok = True
         else:
             password = getpass.getpass()
             ok = self.api.login(username=self.args.username, password=password)
             if ok:
-                LOG.info("Welcome {0}".format(self.args.username))
+                LOG.info("Welcome {0}.".format(self.args.username))
         return ok
 
     def before_login(self):
