@@ -1,3 +1,7 @@
+### v0.10.0 (2023-10-04)
+
+  * Add support to use a permanent Token.
+
 ### v0.9.2 (2023-08-25)
 
   * Fix bug using BaseFacade
