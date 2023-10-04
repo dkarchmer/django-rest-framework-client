@@ -58,10 +58,10 @@ class BaseMain:
             "-t",
             "--use-token",
             dest="use_token",
-            type=str,
+            type=bool,
             default=False,
             required=False,
-            help="Bearer Token",
+            help="Use token (expects DRF_CLIENT_AUTH_TOKEN to be defined as an env variable)",
         )
         self.parser.add_argument(
             "--server",
@@ -139,9 +139,9 @@ class BaseMain:
         Get password from user and login
         """
         if self.args.use_token:
-            token = os.getenv("AUTH_TOKEN")
+            token = os.getenv("DRF_CLIENT_AUTH_TOKEN")
             if not token:
-                self._critical_exit("AUTH_TOKEN must be defined as environment variable.")
+                self._critical_exit("DRF_CLIENT_AUTH_TOKEN must be defined as environment variable.")
             self.api.set_token(token)
             LOG.info("Bearer Token has been set.")
             ok = True
