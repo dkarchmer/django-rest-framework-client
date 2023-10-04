@@ -73,6 +73,27 @@ if ok:
 
 ```
 
+### Example using Tokens
+
+```
+from drf_client.helpers.base_main import BaseMain
+
+class MyClass(Main):
+
+    options = {
+        'DOMAIN': None,
+        'API_PREFIX': 'api/v1',
+        'TOKEN_TYPE': 'bearer',
+        'TOKEN_FORMAT': 'Bearer {token}',
+        'USERNAME_KEY': 'username',
+        'LOGIN': 'auth/login/',
+        'LOGOUT': 'auth/logout/',
+        'USE_DASHES': False,
+    }
+
+export DRF_CLIENT_AUTH_TOKEN=1fe171f65917db0072abc6880196989dd2a20025
+python -m my_script.MyClass --server https://mysite.com --use-token t
+```
 
 ## Django Setup
 
