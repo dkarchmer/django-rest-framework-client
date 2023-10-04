@@ -1,6 +1,7 @@
 import argparse
 import getpass
 import logging
+import os
 import sys
 from urllib.parse import urlparse
 
@@ -50,8 +51,17 @@ class BaseMain:
             "--user",
             dest="username",
             type=str,
-            required=True,
+            required=False,
             help="Username used for login",
+        )
+        self.parser.add_argument(
+            "-t",
+            "--use-token",
+            dest="use_token",
+            type=bool,
+            default=False,
+            required=False,
+            help="Use token (expects DRF_CLIENT_AUTH_TOKEN to be defined as an env variable)",
         )
         self.parser.add_argument(
             "--server",
@@ -128,10 +138,18 @@ class BaseMain:
         """
         Get password from user and login
         """
-        password = getpass.getpass()
-        ok = self.api.login(username=self.args.username, password=password)
-        if ok:
-            LOG.info("Welcome {0}".format(self.args.username))
+        if self.args.use_token:
+            token = os.getenv("DRF_CLIENT_AUTH_TOKEN")
+            if not token:
+                self._critical_exit("DRF_CLIENT_AUTH_TOKEN must be defined as environment variable.")
+            self.api.set_token(token)
+            LOG.info("Bearer Token has been set.")
+            ok = True
+        else:
+            password = getpass.getpass()
+            ok = self.api.login(username=self.args.username, password=password)
+            if ok:
+                LOG.info("Welcome {0}.".format(self.args.username))
         return ok
 
     def before_login(self):
