@@ -58,9 +58,7 @@ class BaseMain:
             "-t",
             "--use-token",
             dest="use_token",
-            type=bool,
-            default=False,
-            required=False,
+            action="store_true",
             help="Use token (expects DRF_CLIENT_AUTH_TOKEN to be defined as an env variable)",
         )
         self.parser.add_argument(
