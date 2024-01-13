@@ -1,3 +1,5 @@
+"""Custom Exception."""
+
 class RestBaseException(Exception):
     """
     All Rest exceptions inherit from this exception.
@@ -56,4 +58,9 @@ class SerializerNotRestailable(RestBaseException):
 class ImproperlyConfigured(RestBaseException):
     """
     Rest is somehow improperly configured.
+    """
+
+class HttpCouldNotVerifyServerError(RestHttpBaseException):
+    """
+    Called when the server identifies itself with a self-signed or untrusted certificate.
     """

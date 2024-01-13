@@ -21,6 +21,9 @@ options = {
     "LOGIN": "auth/login/",
     "LOGOUT": "auth/logout/",
     "USE_DASHES": False,
+    "SESSION_TRIES": 3,
+    "SESSION_TIMEOUT": None,
+    "SESSION_VERIFY": False,
 }
 
 c = RestApi(options)

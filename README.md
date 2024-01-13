@@ -47,6 +47,9 @@ options = {
     'LOGIN': 'auth/login/',
     'LOGOUT': 'auth/logout/',
     'USE_DASHES': False,    # Set to True to tell API to replace undercore ("_") with dashes ("-")
+    'SESSION_TRIES': 3,     # Enable retry
+    'SESSION_TIMEOUT': None,   # No timeout
+    'SESSION_VERIFY': False,   # Do not verify SSL
 }
 
 c = RestApi(options)
@@ -89,6 +92,9 @@ class MyClass(Main):
         'LOGIN': 'auth/login/',
         'LOGOUT': 'auth/logout/',
         'USE_DASHES': False,
+        "SESSION_TRIES": 3,
+        'SESSION_TIMEOUT': None,
+        'SESSION_VERIFY': False, 
     }
 
 export DRF_CLIENT_AUTH_TOKEN=1fe171f65917db0072abc6880196989dd2a20025
@@ -120,7 +126,7 @@ class APILogoutViewSet(APIView):
 
 urlpatterns = [
     url(r'^auth/logout/$', APILogoutViewSet.as_view(), name='api-logout'),
-
+]
 ```
 
 ## Helpers

@@ -28,13 +28,22 @@ import logging
 
 import requests
 
-from .exceptions import *
+from .exceptions import (
+    HttpNotFoundError, 
+    HttpClientError, 
+    HttpServerError, 
+    RestBaseException,
+    HttpCouldNotVerifyServerError,
+)
 
-API_PREFIX = "api/v1"
-DEFAULT_HEADERS = {"Content-Type": "application/json"}
-DEFAULT_TOKEN_TYPE = "jwt"
-DEFAULT_TOKEN_FORMAT = "JWT {token}"
-DEFAULT_OPTIONS = {
+API_PREFIX: str = "api/v1"
+DEFAULT_HEADERS: dict = {"Content-Type": "application/json"}
+DEFAULT_TOKEN_TYPE: str = "jwt"
+DEFAULT_TOKEN_FORMAT: str = "JWT {token}"
+DEFAULT_SESSION_TRIES: int | None = None
+DEFAULT_SESSION_TIMEOUT: int | None = None
+DEFAULT_SESSION_VERIFY: bool = False
+DEFAULT_OPTIONS: dict = {
     "DOMAIN": "http://example.com",
     "API_PREFIX": "api/v1",
     "TOKEN_TYPE": "jwt",
@@ -42,6 +51,9 @@ DEFAULT_OPTIONS = {
     "LOGIN": "auth/login/",
     "LOGOUT": "auth/logout/",
     "USE_DASHES": False,
+    "SESSION_TRIES": None,
+    "SESSION_TIMEOUT": None,
+    "SESSION_VERIFY": False,
 }
 
 logger = logging.getLogger(__name__)
@@ -49,17 +61,22 @@ logger = logging.getLogger(__name__)
 
 class RestResource:
     """
-    Resource provides the main functionality behind a Django Rest Framework based API. It handles the
-    attribute -> url, kwarg -> query param, and other related behind the scenes
-    python to HTTP transformations. It's goal is to represent a single resource
+    Resource provides the main functionality behind a Django Rest Framework based API. 
+    It handles the attribute -> url, kwarg -> query param, and other related behind the 
+    scenes python to HTTP transformations. It's goal is to represent a single resource
     which may or may not have children.
     """
 
-    _store = {}
-    _options = {}
+    _store: dict = {}
+    _options: dict = {}
 
     def __init__(self, *args, **kwargs):
         self._store = kwargs
+        self._session = kwargs.get('session')
+
+        if self._session is None:
+            self._session = requests.Session()
+
         if "options" in self._store:
             self._options = self._store["options"]
         else:
@@ -80,6 +97,7 @@ class RestResource:
             "use_token": self._store["use_token"],
             "base_url": self._store["base_url"],
             "options": self._options,
+            "session": self._session,
         }
 
         new_url = self._store["base_url"]
@@ -93,7 +111,7 @@ class RestResource:
 
         return self._get_resource(**kwargs)
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> "RestResource":
         # Don't allow access to 'private' by convention attributes.
         if item.startswith("_"):
             raise AttributeError(item)
@@ -105,21 +123,12 @@ class RestResource:
 
         return self._get_resource(**kwargs)
 
-    def _copy_kwargs(self, dictionary):
+    def _copy_kwargs(self, dictionary: dict) -> dict:
         kwargs = {}
-        for key, value in self._iterator(dictionary):
+        for key, value in dictionary.items():
             kwargs[key] = value
 
         return kwargs
-
-    def _iterator(self, d):
-        """
-        Helper to get and a proper dict iterator with Py2k and Py3k
-        """
-        try:
-            return d.iteritems()
-        except AttributeError:
-            return d.items()
 
     def _check_for_errors(self, resp, url):
         if 400 <= resp.status_code <= 499:
@@ -164,7 +173,7 @@ class RestResource:
         if 200 <= resp.status_code <= 299:
             return self._try_to_serialize_response(resp)
         else:
-            return  # @@@ We should probably do some sort of error here? (Is this even possible?)
+            return  # @@@ We should probably do some sort of error here?
 
     def url(self, args=None):
         url = self._store["base_url"]
@@ -175,7 +184,7 @@ class RestResource:
     def _get_headers(self):
         headers = DEFAULT_HEADERS
         if self._store["use_token"]:
-            if not "token" in self._store:
+            if "token" not in self._store:
                 raise RestBaseException("No Token")
             authorization_str = self._options["TOKEN_FORMAT"].format(
                 token=self._store["token"]
@@ -195,7 +204,7 @@ class RestResource:
             else self._get_headers()
         )
 
-        return requests.get(self.url(args), headers=headers)
+        return self._session.get(self.url(args), headers=headers)
 
     def get(self, extra_headers: dict = None, **kwargs):
         """Call get and process respond."""
@@ -210,8 +219,13 @@ class RestResource:
             if extra_headers
             else self._get_headers()
         )
-
-        return requests.post(self.url(), data=payload, headers=headers, **kwargs)
+        try:
+            resp = self._session.post(self.url(), data=payload, headers=headers, **kwargs)
+        except requests.exceptions.SSLError as err:
+            raise HttpCouldNotVerifyServerError(
+                "Could not verify the server's SSL certificate", err,
+            )
+        return resp
 
     def post(self, data: dict = None, extra_headers: dict = None, **kwargs):
         """Call post and process respond."""
@@ -227,7 +241,13 @@ class RestResource:
             else self._get_headers()
         )
 
-        return requests.patch(self.url(), data=payload, headers=headers, **kwargs)
+        try:
+            resp = self._session.patch(self.url(), data=payload, headers=headers, **kwargs)
+        except requests.exceptions.SSLError as err:
+            raise HttpCouldNotVerifyServerError(
+                "Could not verify the server's SSL certificate", err,
+            )
+        return resp
 
     def patch(self, data=None, extra_headers: dict = None, **kwargs):
         """Call patch and process respond."""
@@ -243,7 +263,13 @@ class RestResource:
             else self._get_headers()
         )
 
-        return requests.put(self.url(), data=payload, headers=headers, **kwargs)
+        try:
+            resp = self._session.put(self.url(), data=payload, headers=headers, **kwargs)
+        except requests.exceptions.SSLError as err:
+            raise HttpCouldNotVerifyServerError(
+                "Could not verify the server's SSL certificate", err,
+            )
+        return resp
 
     def put(self, data=None, extra_headers: dict = None, **kwargs):
         """Call Put and process respond."""
@@ -259,7 +285,13 @@ class RestResource:
             else self._get_headers()
         )
 
-        return requests.delete(self.url(), data=payload, headers=headers, **kwargs)
+        try:
+            resp = self._session.delete(self.url(), data=payload, headers=headers, **kwargs)
+        except requests.exceptions.SSLError as err:
+            raise HttpCouldNotVerifyServerError(
+                "Could not verify the server's SSL certificate", err,
+            )
+        return resp
 
     def delete(self, data=None, extra_headers: dict = None, **kwargs):
         """Call Delete and process respond. Return True if ok"""
@@ -276,13 +308,34 @@ class RestResource:
         return self.__class__(**kwargs)
 
 
-class Api:
-    token = None
-    resource_class = RestResource
-    use_token = True
-    options = None
+class _TimeoutHTTPAdapter(requests.adapters.HTTPAdapter):
+    """
+    Custom http adapter to allow setting timeouts on http verbs.
+    See https://github.com/psf/requests/issues/2011#issuecomment-64440818
+    and surrounding discussion in that thread for why this is necessary.
+    Short answer is that Session() objects don't support timeouts.
+    """
+    def __init__(self, timeout=None, *args, **kwargs):
+        self.timeout = timeout
+        super(_TimeoutHTTPAdapter, self).__init__(*args, **kwargs)
 
-    def __init__(self, options):
+    def send(self, *args, **kwargs):
+        kwargs['timeout'] = self.timeout
+        return super(_TimeoutHTTPAdapter, self).send(*args, **kwargs)
+
+
+class Api:
+    """
+    Entry level class to access the API.
+
+    It utilizes request sessions to handle retries
+    """
+    token: str | None = None
+    resource_class: RestResource = RestResource
+    use_token: bool = True
+    options: dict | None = None
+
+    def __init__(self, options: dict):
         self.options = options
         if "DOMAIN" not in self.options:
             raise RestBaseException("DOMAIN is missing in options")
@@ -297,12 +350,22 @@ class Api:
         if "TOKEN_FORMAT" not in self.options:
             self.options["TOKEN_FORMAT"] = DEFAULT_TOKEN_FORMAT
 
+        # Create session and initialize to handle timeouts and retries
+        self.session = requests.Session()
+        self.session.verify = self.options.get("SESSION_VERIFY", DEFAULT_SESSION_VERIFY)
+        retries = self.options.get("SESSION_TRIES", DEFAULT_SESSION_TRIES)
+        timeout = self.options.get("SESSION_TIMEOUT", DEFAULT_SESSION_TIMEOUT)
+        if retries is not None or timeout is not None:
+            adapter = _TimeoutHTTPAdapter(max_retries=retries, timeout=timeout)
+            self.session.mount('https://', adapter)
+            self.session.mount('http://', adapter)
+
     def set_token(self, token):
         self.token = token
 
     def login(self, password, username=None):
         assert "LOGIN" in self.options
-        # This allows us to suport both a {'email': username} and {'username": username}
+        # This allows us to support both {'email': username} and {'username": username}
         # Default to 'username' which is the default DRF behavior
         username_key = self.options.get("USERNAME_KEY", "username")
         data = {"password": password}
@@ -310,7 +373,12 @@ class Api:
         url = "{0}/{1}".format(self.base_url, self.options["LOGIN"])
 
         payload = json.dumps(data)
-        r = requests.post(url, data=payload, headers=DEFAULT_HEADERS)
+        try:
+            r = self.session.post(url, data=payload, headers=DEFAULT_HEADERS)
+        except requests.exceptions.SSLError as err:
+            raise HttpCouldNotVerifyServerError(
+                "Could not verify the server's SSL certificate", err,
+            )
         if r.status_code in [200, 201]:
             content = json.loads(r.content.decode())
             self.token = content.get(self.options["TOKEN_TYPE"])
@@ -331,7 +399,12 @@ class Api:
         headers = DEFAULT_HEADERS
         headers["Authorization"] = self.options["TOKEN_FORMAT"].format(token=self.token)
 
-        r = requests.post(url, headers=headers)
+        try:
+            r = self.session.post(url, headers=headers)
+        except requests.exceptions.SSLError as err:
+            raise HttpCouldNotVerifyServerError(
+                "Could not verify the server's SSL certificate", err,
+            )
         if r.status_code == 204:
             logger.info(f"Goodbye @{self.username}")
             self.username = None

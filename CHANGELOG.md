@@ -1,3 +1,9 @@
+### v0.11.0 (2024-01-12)
+
+  * Refactor to use sessions to handle retries.
+  * Add support for timeouts, retries and HTTPS verification.
+  * Credits to python_iotile_cloud development team.
+
 ### v0.10.0 (2023-10-04)
 
   * Add support to use a permanent Token.
