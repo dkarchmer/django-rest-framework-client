@@ -228,15 +228,6 @@ git push --tags
 ## Manual Deployment
 
 ```bash
-pip install -r requirements-build.txt
-
-python setup.py sdist bdist_wheel
-twine check dist/*
-# Publish
-twine upload dist/*
-
-or
-
 pdm build
 # Publish
 twine upload dist/*
