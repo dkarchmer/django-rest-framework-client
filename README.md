@@ -94,7 +94,7 @@ class MyClass(Main):
         'USE_DASHES': False,
         "SESSION_TRIES": 3,
         'SESSION_TIMEOUT': None,
-        'SESSION_VERIFY': False, 
+        'SESSION_VERIFY': False,
     }
 
 export DRF_CLIENT_AUTH_TOKEN=1fe171f65917db0072abc6880196989dd2a20025
@@ -205,6 +205,11 @@ pip install pdm
 pdm install
 
 pdm run test
+
+# Install pre-commit hooks
+pre-commit install
+pre-commit install --hook-type prepare-commit-msg
+pre-commit install --hook-type commit-msg
 ```
 
 ## CI Deployment
@@ -227,6 +232,12 @@ pip install -r requirements-build.txt
 
 python setup.py sdist bdist_wheel
 twine check dist/*
+# Publish
+twine upload dist/*
+
+or
+
+pdm build
 # Publish
 twine upload dist/*
 ```

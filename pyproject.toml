@@ -6,7 +6,6 @@ authors = [
     {name = "David Karchmer", email = "dkarchmer@gmail.com"},
 ]
 dependencies = [
-    "setuptools>=71.1.0",
     "requests",
 ]
 requires-python = ">=3.10,<4"
@@ -38,6 +37,8 @@ dev = [
     "mock>=5.1.0",
     "requests-mock>=1.12.1",
     "pre-commit>=3.7.1",
+    "setuptools>=71.1.0",
+    "twine>=5.1.1",
 ]
 [build-system]
 requires = ["pdm-backend"]
