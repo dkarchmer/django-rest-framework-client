@@ -1,6 +1,6 @@
 [project]
 name = "django-rest-framework-client"
-version = "0.11.1"
+dynamic = ["version"]
 description = "Python client for a DjangoRestFramework based web site"
 authors = [
     {name = "David Karchmer", email = "dkarchmer@gmail.com"},
@@ -76,3 +76,6 @@ ignore = [
     "D203", "D212",  # D203 and D211, D212 and D213 are mutually exclusive
 ]
 namespace-packages = ["scripts", "scripts/docker"]
+
+[tool.pdm.version]
+source = "scm"

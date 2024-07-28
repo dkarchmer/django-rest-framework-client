@@ -1,4 +1,5 @@
 """test Resource class."""
+
 import json
 import unittest
 

@@ -1,5 +1,6 @@
 """Custom Exception."""
 
+
 class RestBaseException(Exception):
     """
     All Rest exceptions inherit from this exception.
@@ -59,6 +60,7 @@ class ImproperlyConfigured(RestBaseException):
     """
     Rest is somehow improperly configured.
     """
+
 
 class HttpCouldNotVerifyServerError(RestHttpBaseException):
     """

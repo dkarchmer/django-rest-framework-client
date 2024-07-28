@@ -1,4 +1,8 @@
-### v0.11.1 (2024-01-12)
+### v0.11.2 (2024-07-28)
+
+  * Format all files with Ruff
+
+### v0.11.1 (2024-07-28)
 
   * Switch to Ruff and cleanup files
 

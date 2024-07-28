@@ -1,4 +1,5 @@
 """Init tests."""
+
 import unittest
 
 

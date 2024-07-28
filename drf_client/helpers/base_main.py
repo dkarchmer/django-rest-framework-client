@@ -19,7 +19,7 @@ class BaseMain:
     - Setup LOG configuration
     - Login
     - Do something after logging in
-"""
+    """
 
     parser = None
     args = None

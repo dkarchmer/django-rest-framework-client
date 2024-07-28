@@ -1,4 +1,5 @@
 """test Resource class."""
+
 import unittest
 
 from drf_client.helpers.base_facade import BaseFacade
