@@ -94,7 +94,7 @@ class MyClass(Main):
         'USE_DASHES': False,
         "SESSION_TRIES": 3,
         'SESSION_TIMEOUT': None,
-        'SESSION_VERIFY': False, 
+        'SESSION_VERIFY': False,
     }
 
 export DRF_CLIENT_AUTH_TOKEN=1fe171f65917db0072abc6880196989dd2a20025
@@ -201,10 +201,15 @@ To test, run python setup.py test or to run coverage analysis:
 ```bash
 python3 -m venv .virtualenv/drf_client
 source .virtualenv/drf_client/bin/activate
-pip install -r requirements-test.txt
-pip install -e .
+pip install pdm
+pdm install
 
-py.test
+pdm run test
+
+# Install pre-commit hooks
+pre-commit install
+pre-commit install --hook-type prepare-commit-msg
+pre-commit install --hook-type commit-msg
 ```
 
 ## CI Deployment
@@ -223,10 +228,7 @@ git push --tags
 ## Manual Deployment
 
 ```bash
-pip install -r requirements-build.txt
-
-python setup.py sdist bdist_wheel
-twine check dist/*
+pdm build
 # Publish
 twine upload dist/*
 ```

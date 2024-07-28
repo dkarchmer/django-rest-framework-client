@@ -3,6 +3,7 @@
 A facade is an object that serves as a front-facing interface masking more complex
 underlying or structural code.
 """
+
 from argparse import Namespace
 
 from drf_client.connection import Api as RestApi

@@ -1,9 +1,6 @@
 import json
-import sys
 import unittest
 
-import mock
-import requests
 import requests_mock
 
 from drf_client.connection import Api
@@ -160,23 +157,17 @@ class ApiTestCase(unittest.TestCase):
     def test_post_with_error(self, m):
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
-        m.post(
-            "https://example.com/api/v1/test/", status_code=400, text=json.dumps(result)
-        )
+        m.post("https://example.com/api/v1/test/", status_code=400, text=json.dumps(result))
 
         with self.assertRaises(HttpClientError):
             self.api.test.post(payload)
 
-        m.post(
-            "https://example.com/api/v1/test/", status_code=404, text=json.dumps(result)
-        )
+        m.post("https://example.com/api/v1/test/", status_code=404, text=json.dumps(result))
 
         with self.assertRaises(HttpClientError):
             self.api.test.post(payload)
 
-        m.post(
-            "https://example.com/api/v1/test/", status_code=500, text=json.dumps(result)
-        )
+        m.post("https://example.com/api/v1/test/", status_code=500, text=json.dumps(result))
 
         with self.assertRaises(HttpServerError):
             self.api.test.post(payload)
