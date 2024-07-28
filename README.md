@@ -20,7 +20,7 @@ Package is based on https://github.com/samgiles/slumber, but enhanced to support
 
 restframeworkclient requires the following modules.
 
-    * Python 3.9+
+    * Python 3.10+
     * requests
 
 ## Installation
@@ -224,4 +224,3 @@ git push --tags
 ```
 
 3. Create new release using GitHub Web Site. Github action will run automatically to deploy to PyPi.
-
