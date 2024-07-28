@@ -1,0 +1,76 @@
+[project]
+name = "django-rest-framework-client"
+version = "0.11.1"
+description = "Python client for a DjangoRestFramework based web site"
+authors = [
+    {name = "David Karchmer", email = "dkarchmer@gmail.com"},
+]
+dependencies = [
+    "setuptools>=71.1.0",
+    "requests",
+]
+requires-python = ">=3.10,<4"
+readme = "README.md"
+license = {text = "MIT"}
+keywords = ["django", "djangorestframework", "drf", "rest-client"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/dkarchmer/django-rest-framework-client"
+Repository = "https://github.com/dkarchmer/django-rest-framework-client"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.2",
+    "ruff>=0.5.5",
+    "coverage>=7.6.0",
+    "mock>=5.1.0",
+    "requests-mock>=1.12.1",
+]
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.scripts]
+test = "pytest"
+lint = "ruff check"
+
+[tool.ruff]
+line-length = 120
+preview = true
+target-version = "py312"
+
+[too.ruff.lint]
+select = ["ALL"]
+ignore = [
+    # The following rules may cause conflicts when used with the ruff formatter and should be disabled:
+    "COM812", "ISC001",
+
+    "CPY001",
+    "S",
+    "PT",  # pytest
+    "ARG002",  # unsused argument (false positives in overriden methods)
+    "E203",  # Whitespace before ':' conflicts with black
+    "PLR0914",  # Too many variables
+    "PLR6301",  # Method `perform_update` could be a function or static method (false positives in overidden methods)
+    "RUF012",  # Too many issues with DRF classes and Django
+    "ANN101",  # Self
+    "ANN002",  # *args
+    "ANN003",  # **kwargs
+    "D203", "D212",  # D203 and D211, D212 and D213 are mutually exclusive
+]
+namespace-packages = ["scripts", "scripts/docker"]

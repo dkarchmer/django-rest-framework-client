@@ -1,9 +1,6 @@
 import json
-import sys
 import unittest
 
-import mock
-import requests
 import requests_mock
 
 from drf_client.connection import Api

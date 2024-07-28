@@ -157,7 +157,7 @@ class RestResource:
             return
 
         if resp.content:
-            if type(resp.content) == bytes:
+            if isinstance(resp.content, bytes):
                 try:
                     encoding = requests.utils.guess_json_utf(resp.content)
                     return json.loads(resp.content.decode(encoding))

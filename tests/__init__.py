@@ -1,4 +1,4 @@
-import os.path
+"""Init tests."""
 import unittest
 
 

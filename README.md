@@ -201,10 +201,10 @@ To test, run python setup.py test or to run coverage analysis:
 ```bash
 python3 -m venv .virtualenv/drf_client
 source .virtualenv/drf_client/bin/activate
-pip install -r requirements-test.txt
-pip install -e .
+pip install pdm
+pdm install
 
-py.test
+pdm run test
 ```
 
 ## CI Deployment
