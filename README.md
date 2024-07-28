@@ -225,10 +225,3 @@ git push --tags
 
 3. Create new release using GitHub Web Site. Github action will run automatically to deploy to PyPi.
 
-## Manual Deployment
-
-```bash
-pdm build
-# Publish
-twine upload dist/*
-```
