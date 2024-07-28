@@ -37,6 +37,7 @@ dev = [
     "coverage>=7.6.0",
     "mock>=5.1.0",
     "requests-mock>=1.12.1",
+    "pre-commit>=3.7.1",
 ]
 [build-system]
 requires = ["pdm-backend"]
