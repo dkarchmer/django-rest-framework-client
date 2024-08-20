@@ -199,10 +199,8 @@ python myscript.py -u <USERNAME> --foo bar
 To test, run python setup.py test or to run coverage analysis:
 
 ```bash
-python3 -m venv .virtualenv/drf_client
-source .virtualenv/drf_client/bin/activate
 pip install pdm
-pdm install
+pdm sync
 
 pdm run test
 
