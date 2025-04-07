@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="django-rest-framework-client",
-    version="0.11.2",
+    version="0.12.2",
     description="Python client for a DjangoRestFramework based web site",
     long_description=README,
     long_description_content_type="text/markdown",

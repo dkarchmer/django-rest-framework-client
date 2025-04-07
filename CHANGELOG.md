@@ -1,3 +1,6 @@
+### v0.12.0 (2025-04-07)
+  * Add support to coroutines
+
 ### v0.11.2 (2024-07-28)
 
   * Format all files with Ruff
