@@ -22,11 +22,15 @@ Usage:
     logger.debug('Found {0} groups'.format(obj_list['count']))
     obj_one = api.some_model(1).get()
     api.logout()
+
+    # Running get as coroutine (Asyncio)
+    obj_list = asyncio.run(self.api.some_model.async_get())
 """
 
 import json
 import logging
 
+import httpx
 import requests
 
 from .exceptions import (
@@ -277,6 +281,71 @@ class RestResource:
     def delete(self, data=None, extra_headers: dict = None, **kwargs):
         """Call Delete and process respond. Return True if ok"""
         resp = self.raw_delete(data, extra_headers, **kwargs)
+        if 200 <= resp.status_code <= 299:
+            if resp.status_code == 204:
+                return True
+            else:
+                return True  # @@@ Should this really be True?
+        else:
+            return False
+
+    async def async_raw_get(self, extra_headers: dict = None, **kwargs):
+        """Call async get and return raw request respond."""
+        args = kwargs.get("extra")
+        headers = self._get_headers() | (extra_headers or {})
+        async with httpx.AsyncClient() as client:
+            return await client.get(self.url(args), headers=headers)
+
+    async def async_get(self, extra_headers: dict = None, **kwargs):
+        """Call async get and process respond."""
+        resp = await self.async_raw_get(extra_headers, **kwargs)
+        return self._process_response(resp)
+
+    async def async_raw_post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+        """Call async raw post and return raw request respond."""
+        payload = json.dumps(data) if data and "files" not in kwargs else data
+        headers = self._get_headers() | (extra_headers or {})
+        async with httpx.AsyncClient() as client:
+            return await client.post(self.url(), data=payload, headers=headers, **kwargs)
+
+    async def async_post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+        """Call async post and process respond."""
+        resp = await self.async_raw_post(data, extra_headers, **kwargs)
+        return self._process_response(resp)
+
+    async def async_raw_patch(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call async raw patch and process respond."""
+        payload = json.dumps(data) if data and "files" not in kwargs else data
+        headers = self._get_headers() | (extra_headers or {})
+        async with httpx.AsyncClient() as client:
+            return await client.patch(self.url(), data=payload, headers=headers, **kwargs)
+
+    async def async_patch(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call async patch and process respond."""
+        resp = await self.async_raw_patch(data, extra_headers, **kwargs)
+        return self._process_response(resp)
+
+    async def async_raw_put(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call async raw put and process respond."""
+        payload = json.dumps(data) if data and "files" not in kwargs else data
+        headers = self._get_headers() | (extra_headers or {})
+        async with httpx.AsyncClient() as client:
+            return await client.put(self.url(), data=payload, headers=headers, **kwargs)
+
+    async def async_put(self, data=None, extra_headers: dict = None, **kwargs):
+        """Call async put and process respond."""
+        resp = await self.async_raw_put(data, extra_headers, **kwargs)
+        return self._process_response(resp)
+
+    async def async_raw_delete(self, extra_headers: dict = None, **kwargs):
+        """Call async raw delete and process respond."""
+        headers = self._get_headers() | (extra_headers or {})
+        async with httpx.AsyncClient() as client:
+            return await client.delete(self.url(), headers=headers, **kwargs)
+
+    async def async_delete(self, extra_headers: dict = None, **kwargs):
+        """Call async delete and process respond."""
+        resp = await self.async_raw_delete(extra_headers, **kwargs)
         if 200 <= resp.status_code <= 299:
             if resp.status_code == 204:
                 return True
