@@ -76,7 +76,6 @@ if ok:
 
 ```
 
-<<<<<<< Updated upstream
 ### Example using Tokens
 
 ```
@@ -102,8 +101,6 @@ export DRF_CLIENT_AUTH_TOKEN=1fe171f65917db0072abc6880196989dd2a20025
 python -m my_script.MyClass --server https://mysite.com --use-token t
 ```
 
-=======
->>>>>>> Stashed changes
 ## Django Setup
 
 Client assumes by default that all urls should end with a slash (tested with the default
