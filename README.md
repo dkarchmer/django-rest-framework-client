@@ -76,6 +76,7 @@ if ok:
 
 ```
 
+<<<<<<< Updated upstream
 ### Example using Tokens
 
 ```
@@ -101,6 +102,8 @@ export DRF_CLIENT_AUTH_TOKEN=1fe171f65917db0072abc6880196989dd2a20025
 python -m my_script.MyClass --server https://mysite.com --use-token t
 ```
 
+=======
+>>>>>>> Stashed changes
 ## Django Setup
 
 Client assumes by default that all urls should end with a slash (tested with the default
@@ -158,7 +161,7 @@ The opinionated class will execute the basic main flow:
        self.after_login()
 ```
 
-Any of the above functions can be overwritten by derving from this class.
+Any of the above functions can be overwritten by deriving from this class.
 
 Here is a sample script:
 
@@ -180,6 +183,40 @@ class MyScript(BaseMain):
         resp = self.api.foo.bar.get()
         # You can also access the API from the global Facade
         resp = BaseFacade.api.foo.bar.get()
+
+
+if __name__ == '__main__':
+
+    work = MyScript()
+    work.main()
+```
+
+If you wish to implement coroutines to run multiple tasks in parallel, you can use the `asyncio` library.
+
+```python
+import asyncio
+from drf_client.helper.base_main import BaseMain
+from drf_client.helper.base_facade import BaseFacade
+
+class MyScript(BaseMain):
+
+    def add_extra_args(self):
+        # Add extra positional argument (as example)
+        self.parser.add_argument('foo', metavar='foo', type=str, help='RTFM')
+
+    def before_login(self):
+        logger.info('-----------')
+
+    async def process(self):
+        """Main async test"""
+        # foo_bar and foo_baz are coroutines
+        foo_bar = await self.api.foo.bar.async_get()
+        foo_baz = await self.api.foo.baz.async_get()
+
+
+    def  after_login(self):
+        # Main function to OVERWITE and do real work
+        resp = asyncio.run(self.process())
 
 
 if __name__ == '__main__':
