@@ -24,6 +24,8 @@ setup(
     ],
     install_requires=[
         "requests",
+        "httpx>=0.28.1",
+        "respx>=0.22.0",
     ],
     python_requires=">=3.10,<4",
     keywords=[
