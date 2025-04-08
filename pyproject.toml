@@ -41,6 +41,7 @@ dev = [
     "pre-commit>=3.7.1",
     "setuptools>=71.1.0",
     "twine>=5.1.1",
+    "wheel>=0.46.1",
 ]
 [build-system]
 requires = ["pdm-backend"]
