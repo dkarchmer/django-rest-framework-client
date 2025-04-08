@@ -39,8 +39,8 @@ dev = [
     "mock>=5.1.0",
     "requests-mock>=1.12.1",
     "pre-commit>=3.7.1",
-    "setuptools>=71.1.0",
-    "twine>=5.1.1",
+    "setuptools>=78.1.0",
+    "twine>=6.1.0",
     "wheel>=0.46.1",
 ]
 [build-system]
