@@ -246,7 +246,7 @@ pre-commit install --hook-type commit-msg
 
 ## CI Deployment
 
-1. Update `setup.py` with new version
+1. Update `pyproject.py` with new version
 2. Update `CHANGELOG.md` with description of new version
 2. Create new tag with same version
 
