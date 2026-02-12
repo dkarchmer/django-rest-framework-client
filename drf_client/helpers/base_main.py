@@ -5,6 +5,7 @@ import os
 import sys
 from urllib.parse import urlparse
 
+from ..connection import Api
 from .base_facade import BaseFacade
 
 LOG = logging.getLogger(__name__)
@@ -21,9 +22,9 @@ class BaseMain:
     - Do something after logging in
     """
 
-    parser = None
-    args = None
-    api = None
+    parser: argparse.ArgumentParser
+    args: argparse.Namespace
+    api: Api
     options = {
         "DOMAIN": None,
         "API_PREFIX": "api/v1",
@@ -91,6 +92,7 @@ class BaseMain:
         self.domain = self.get_domain()
         # Create a static pointer to the API for global access
         BaseFacade.initialize_api(api_options=self.get_options(), cmd_args=self.args)
+        assert BaseFacade.api is not None
         self.api = BaseFacade.api
         self.before_login()
         ok = self.login()

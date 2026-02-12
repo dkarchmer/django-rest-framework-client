@@ -14,14 +14,9 @@ class RestHttpBaseException(RestBaseException):
 
     def __init__(self, *args, **kwargs):
         """
-        Helper to get and a proper dict iterator with Py2k and Py3k
+        Sets kwargs as attributes on the exception instance.
         """
-        try:
-            iter = kwargs.iteritems()
-        except AttributeError:
-            iter = kwargs.items()
-
-        for key, value in iter:
+        for key, value in kwargs.items():
             setattr(self, key, value)
         super(RestHttpBaseException, self).__init__(*args)
 

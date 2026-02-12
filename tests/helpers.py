@@ -11,5 +11,6 @@ class FacadeTestCase(unittest.TestCase):
     def test_initialize_facade(self):
         """Test Initializer."""
         BaseFacade.initialize_api(api_options={"DOMAIN": "https://example.com"})
+        assert BaseFacade.api_options is not None
         assert BaseFacade.api_options["DOMAIN"] == "https://example.com"
         assert BaseFacade.api is not None

@@ -22,8 +22,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
@@ -33,7 +34,7 @@ Repository = "https://github.com/dkarchmer/django-rest-framework-client"
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.3.2",
+    "pytest~=9.0",
     "ruff>=0.5.5",
     "coverage>=7.6.0",
     "mock>=5.1.0",
@@ -42,6 +43,7 @@ dev = [
     "setuptools>=78.1.0",
     "twine>=6.1.0",
     "wheel>=0.46.1",
+    "ty~=0.0",
 ]
 [build-system]
 requires = ["pdm-backend"]
@@ -52,12 +54,12 @@ distribution = true
 
 [tool.pdm.scripts]
 test = "pytest"
-lint = "ruff check"
+lint = {composite = ["ruff check", "ty check"]}
 
 [tool.ruff]
 line-length = 120
 preview = true
-target-version = "py312"
+target-version = "py314"
 
 [too.ruff.lint]
 select = ["ALL"]
@@ -78,4 +80,3 @@ ignore = [
     "ANN003",  # **kwargs
     "D203", "D212",  # D203 and D211, D212 and D213 are mutually exclusive
 ]
-namespace-packages = ["scripts", "scripts/docker"]

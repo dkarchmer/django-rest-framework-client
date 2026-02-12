@@ -11,8 +11,6 @@ from drf_client.exceptions import HttpClientError, HttpServerError
 
 
 class ApiTestCase(unittest.TestCase):
-    api = None
-
     def setUp(self):
         options = {
             "DOMAIN": "https://example.com",
@@ -25,9 +23,6 @@ class ApiTestCase(unittest.TestCase):
         }
 
         self.api = Api(options=options)
-
-    def tearDown(self):
-        self.api = None
 
     def test_init(self):
         self.assertEqual(self.api.base_url, "https://example.com/api/v1")

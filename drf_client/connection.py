@@ -32,6 +32,7 @@ import logging
 
 import httpx
 import requests
+import requests.adapters
 
 from .exceptions import (
     HttpNotFoundError,
@@ -74,13 +75,14 @@ class RestResource:
 
     _store: dict = {}
     _options: dict = {}
+    _session: requests.Session
 
     def __init__(self, *args, **kwargs):
         self._store = kwargs
-        self._session = kwargs.get("session")
-
-        if self._session is None:
-            self._session = requests.Session()
+        session = kwargs.get("session")
+        if session is None:
+            session = requests.Session()
+        self._session = session
 
         if "options" in self._store:
             self._options = self._store["options"]
@@ -89,7 +91,7 @@ class RestResource:
         if "use_token" not in self._store:
             self._store["use_token"] = False
 
-    def __call__(self, id=None):
+    def __call__(self, id=None, url_override=None):
         """
         Returns a new instance of self modified by one or more of the available
         parameters. These allows us to do things like override format for a
@@ -105,9 +107,12 @@ class RestResource:
             "session": self._session,
         }
 
-        new_url = self._store["base_url"]
-        if id is not None:
-            new_url = f"{new_url}{id}/"
+        if url_override is not None:
+            new_url = url_override
+        else:
+            new_url = self._store["base_url"]
+            if id is not None:
+                new_url = f"{new_url}{id}/"
 
         if not new_url.endswith("/"):
             new_url += "/"
@@ -194,7 +199,7 @@ class RestResource:
 
         return headers
 
-    def raw_get(self, extra_headers: dict = None, **kwargs):
+    def raw_get(self, extra_headers: dict | None = None, **kwargs):
         """Call get and return raw request respond."""
         args = None
         if "extra" in kwargs:
@@ -203,12 +208,12 @@ class RestResource:
 
         return self._session.get(self.url(args), headers=headers)
 
-    def get(self, extra_headers: dict = None, **kwargs):
+    def get(self, extra_headers: dict | None = None, **kwargs):
         """Call get and process respond."""
         resp = self.raw_get(extra_headers, **kwargs)
         return self._process_response(resp)
 
-    def raw_post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+    def raw_post(self, data: dict | None = None, extra_headers: dict | None = None, **kwargs):
         """Call requests post and return raw respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
@@ -221,12 +226,12 @@ class RestResource:
             )
         return resp
 
-    def post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+    def post(self, data: dict | None = None, extra_headers: dict | None = None, **kwargs):
         """Call post and process respond."""
         resp = self.raw_post(data, extra_headers, **kwargs)
         return self._process_response(resp)
 
-    def raw_patch(self, data=None, extra_headers: dict = None, **kwargs):
+    def raw_patch(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call patch and return raw request respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
@@ -240,12 +245,12 @@ class RestResource:
             )
         return resp
 
-    def patch(self, data=None, extra_headers: dict = None, **kwargs):
+    def patch(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call patch and process respond."""
         resp = self.raw_patch(data, extra_headers, **kwargs)
         return self._process_response(resp)
 
-    def raw_put(self, data=None, extra_headers: dict = None, **kwargs):
+    def raw_put(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call Put and return raw request respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
@@ -259,12 +264,12 @@ class RestResource:
             )
         return resp
 
-    def put(self, data=None, extra_headers: dict = None, **kwargs):
+    def put(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call Put and process respond."""
         resp = self.raw_put(data, extra_headers, **kwargs)
         return self._process_response(resp)
 
-    def raw_delete(self, data=None, extra_headers: dict = None, **kwargs):
+    def raw_delete(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call Delete and return raw request respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | extra_headers if extra_headers else self._get_headers()
@@ -278,7 +283,7 @@ class RestResource:
             )
         return resp
 
-    def delete(self, data=None, extra_headers: dict = None, **kwargs):
+    def delete(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call Delete and process respond. Return True if ok"""
         resp = self.raw_delete(data, extra_headers, **kwargs)
         if 200 <= resp.status_code <= 299:
@@ -289,61 +294,61 @@ class RestResource:
         else:
             return False
 
-    async def async_raw_get(self, extra_headers: dict = None, **kwargs):
+    async def async_raw_get(self, extra_headers: dict | None = None, **kwargs):
         """Call async get and return raw request respond."""
         args = kwargs.get("extra")
         headers = self._get_headers() | (extra_headers or {})
         async with httpx.AsyncClient() as client:
             return await client.get(self.url(args), headers=headers)
 
-    async def async_get(self, extra_headers: dict = None, **kwargs):
+    async def async_get(self, extra_headers: dict | None = None, **kwargs):
         """Call async get and process respond."""
         resp = await self.async_raw_get(extra_headers, **kwargs)
         return self._process_response(resp)
 
-    async def async_raw_post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+    async def async_raw_post(self, data: dict | None = None, extra_headers: dict | None = None, **kwargs):
         """Call async raw post and return raw request respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | (extra_headers or {})
         async with httpx.AsyncClient() as client:
-            return await client.post(self.url(), data=payload, headers=headers, **kwargs)
+            return await client.post(self.url(), content=payload, headers=headers, **kwargs)
 
-    async def async_post(self, data: dict = None, extra_headers: dict = None, **kwargs):
+    async def async_post(self, data: dict | None = None, extra_headers: dict | None = None, **kwargs):
         """Call async post and process respond."""
         resp = await self.async_raw_post(data, extra_headers, **kwargs)
         return self._process_response(resp)
 
-    async def async_raw_patch(self, data=None, extra_headers: dict = None, **kwargs):
+    async def async_raw_patch(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call async raw patch and process respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | (extra_headers or {})
         async with httpx.AsyncClient() as client:
-            return await client.patch(self.url(), data=payload, headers=headers, **kwargs)
+            return await client.patch(self.url(), content=payload, headers=headers, **kwargs)
 
-    async def async_patch(self, data=None, extra_headers: dict = None, **kwargs):
+    async def async_patch(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call async patch and process respond."""
         resp = await self.async_raw_patch(data, extra_headers, **kwargs)
         return self._process_response(resp)
 
-    async def async_raw_put(self, data=None, extra_headers: dict = None, **kwargs):
+    async def async_raw_put(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call async raw put and process respond."""
         payload = json.dumps(data) if data and "files" not in kwargs else data
         headers = self._get_headers() | (extra_headers or {})
         async with httpx.AsyncClient() as client:
-            return await client.put(self.url(), data=payload, headers=headers, **kwargs)
+            return await client.put(self.url(), content=payload, headers=headers, **kwargs)
 
-    async def async_put(self, data=None, extra_headers: dict = None, **kwargs):
+    async def async_put(self, data=None, extra_headers: dict | None = None, **kwargs):
         """Call async put and process respond."""
         resp = await self.async_raw_put(data, extra_headers, **kwargs)
         return self._process_response(resp)
 
-    async def async_raw_delete(self, extra_headers: dict = None, **kwargs):
+    async def async_raw_delete(self, extra_headers: dict | None = None, **kwargs):
         """Call async raw delete and process respond."""
         headers = self._get_headers() | (extra_headers or {})
         async with httpx.AsyncClient() as client:
             return await client.delete(self.url(), headers=headers, **kwargs)
 
-    async def async_delete(self, extra_headers: dict = None, **kwargs):
+    async def async_delete(self, extra_headers: dict | None = None, **kwargs):
         """Call async delete and process respond."""
         resp = await self.async_raw_delete(extra_headers, **kwargs)
         if 200 <= resp.status_code <= 299:
@@ -383,9 +388,9 @@ class Api:
     """
 
     token: str | None = None
-    resource_class: RestResource = RestResource
+    resource_class: type[RestResource] = RestResource
     use_token: bool = True
-    options: dict | None = None
+    options: dict
 
     def __init__(self, options: dict):
         self.options = options
