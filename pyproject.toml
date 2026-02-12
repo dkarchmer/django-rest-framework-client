@@ -53,7 +53,7 @@ packages = ["drf_client"]
 [tool.ruff]
 line-length = 120
 preview = true
-target-version = "py314"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["ALL"]

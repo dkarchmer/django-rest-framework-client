@@ -182,7 +182,7 @@ class RestResource:
                 try:
                     encoding = requests.utils.guess_json_utf(resp.content)
                     return json.loads(resp.content.decode(encoding))
-                except json.JSONDecodeError, UnicodeDecodeError:
+                except (json.JSONDecodeError, UnicodeDecodeError):
                     return resp.content
             return json.loads(resp.content)
         return resp.content
