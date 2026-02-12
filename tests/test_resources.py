@@ -52,4 +52,5 @@ class ResourceTestCase(unittest.TestCase):
         m.get("https://example.com/api/v1/test/", text=json.dumps(payload))
 
         resp = self.base_resource.get()
+        assert isinstance(resp, dict)
         assert resp["result"] == ["a", "b", "c"]

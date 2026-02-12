@@ -34,6 +34,7 @@ ok = c.login(username=username, password=password)
 if ok:
     # GET some data
     my_objects = c.org.get()
+    assert isinstance(my_objects, dict)
     for obj in my_objects["results"]:
         logger.info(pprint.pformat(obj))
         logger.info("------------------------------")

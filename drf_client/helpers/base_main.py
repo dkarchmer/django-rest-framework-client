@@ -8,6 +8,8 @@ import sys
 import typing
 from urllib.parse import urlparse
 
+from drf_client.exceptions import CriticalError
+
 from .base_facade import BaseFacade
 
 if typing.TYPE_CHECKING:
@@ -84,11 +86,6 @@ class BaseMain:
         self.config_logging()
         self.domain = ""
 
-    def _critical_exit(self, msg: str) -> None:
-        """Exit with an error."""
-        logger.error(msg)
-        sys.exit(1)
-
     def main(self) -> None:
         """
         Initiate execution.
@@ -98,15 +95,19 @@ class BaseMain:
         3. Logging into the server
         4. Call after_loging to do actual work with server data.
         """
-        self.domain = self.get_domain()
-        # Create a static pointer to the API for global access
-        BaseFacade.initialize_api(api_options=self.get_options(), cmd_args=self.args)
-        assert BaseFacade.api is not None
-        self.api = BaseFacade.api
-        self.before_login()
-        ok = self.login()
-        if ok:
-            self.after_login()
+        try:
+            self.domain = self.get_domain()
+            # Create a static pointer to the API for global access
+            BaseFacade.initialize_api(api_options=self.get_options(), cmd_args=self.args)
+            assert BaseFacade.api is not None
+            self.api = BaseFacade.api
+            self.before_login()
+            ok = self.login()
+            if ok:
+                self.after_login()
+        except CriticalError:
+            # Error already logged, exit with error code
+            sys.exit(1)
 
     # Following functions can be overwritten if needed
     # ================================================
@@ -157,11 +158,15 @@ class BaseMain:
         Returns:
             True if login was successful, False otherwise.
 
+        Raises:
+            CriticalError: If the token option is used but the required environment variable is not set.
+
         """
         if self.args.use_token:
             token = os.getenv("DRF_CLIENT_AUTH_TOKEN")
             if not token:
-                self._critical_exit("DRF_CLIENT_AUTH_TOKEN must be defined as environment variable.")
+                msg = "DRF_CLIENT_AUTH_TOKEN must be defined as environment variable"
+                raise CriticalError(msg)
             self.api.set_token(token)
             logger.info("Bearer Token has been set.")
             ok = True

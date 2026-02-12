@@ -75,6 +75,7 @@ class ApiTestCase(unittest.TestCase):
         m.get("https://example.com/api/v1/test/", text=json.dumps(payload))
 
         resp = self.api.test.get()
+        assert isinstance(resp, dict)
         assert resp["result"] == ["a", "b", "c"]
 
     @requests_mock.Mocker()
@@ -128,6 +129,7 @@ class ApiTestCase(unittest.TestCase):
         m.post("https://example.com/api/v1/test/", text=json.dumps(result))
 
         resp = self.api.test.post(payload)
+        assert isinstance(resp, dict)
         assert resp["id"] == 1
 
     @requests_mock.Mocker()
@@ -138,6 +140,7 @@ class ApiTestCase(unittest.TestCase):
         m.patch("https://example.com/api/v1/test/my-detail/", text=json.dumps(result))
 
         resp = self.api.test("my-detail").patch(payload)
+        assert isinstance(resp, dict)
         assert resp["id"] == 1
 
     @requests_mock.Mocker()
@@ -148,6 +151,7 @@ class ApiTestCase(unittest.TestCase):
         m.put("https://example.com/api/v1/test/my-detail/", text=json.dumps(result))
 
         resp = self.api.test("my-detail").put(payload)
+        assert isinstance(resp, dict)
         assert resp["id"] == 1
 
     @requests_mock.Mocker()

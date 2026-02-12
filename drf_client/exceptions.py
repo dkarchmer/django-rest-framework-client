@@ -41,3 +41,7 @@ class ImproperlyConfigured(RestBaseException):
 
 class HttpCouldNotVerifyServerError(RestHttpBaseException):
     """Called when the server identifies itself with a self-signed or untrusted certificate."""
+
+
+class CriticalError(Exception):
+    """Exception raised for critical errors that should terminate the script."""

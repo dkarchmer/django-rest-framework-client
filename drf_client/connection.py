@@ -28,6 +28,8 @@ Usage:
     obj_list = asyncio.run(self.api.some_model.async_get())
 """
 
+from __future__ import annotations
+
 import json
 import logging
 
@@ -154,7 +156,7 @@ class RestResource:
         return self._get_resource(**kwargs)
 
     def _check_for_errors(self, resp: requests.Response | httpx.Response, url: str) -> None:
-        if 400 <= resp.status_code <= 499:
+        if 400 <= resp.status_code <= 499:  # ty: ignore[unsupported-operator]
             exception_class = HttpNotFoundError if resp.status_code == 404 else HttpClientError
             msg = f"Client Error {resp.status_code}: {url}"
             raise exception_class(
@@ -162,7 +164,7 @@ class RestResource:
                 response=resp,
                 content=resp.content,
             )
-        if 500 <= resp.status_code <= 599:
+        if 500 <= resp.status_code <= 599:  # ty: ignore[unsupported-operator]
             msg = f"Server Error {resp.status_code}: {url}"
             raise HttpServerError(msg, response=resp, content=resp.content)
 
@@ -188,7 +190,7 @@ class RestResource:
     def _process_response(self, resp: requests.Response | httpx.Response) -> dict | list | bytes | None:
         self._check_for_errors(resp, self.url())
 
-        if 200 <= resp.status_code <= 299:
+        if 200 <= resp.status_code <= 299:  # ty: ignore[unsupported-operator]
             return self._try_to_serialize_response(resp)
         return None  # @@@ We should probably do some sort of error here?
 
@@ -372,7 +374,7 @@ class RestResource:
 
         """
         resp = self.raw_delete(data, extra_headers, **kwargs)
-        if 200 <= resp.status_code <= 299:
+        if 200 <= resp.status_code <= 299:  # ty: ignore[unsupported-operator]
             if resp.status_code == 204:
                 return True
             return True  # @@@ Should this really be True?
