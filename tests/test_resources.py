@@ -1,4 +1,4 @@
-"""test Resource class."""
+"""Test Resource class."""
 
 import json
 import unittest
@@ -9,7 +9,10 @@ from drf_client.connection import RestResource
 
 
 class ResourceTestCase(unittest.TestCase):
-    def setUp(self):
+    """Test the RestResource class functionality."""
+
+    def setUp(self) -> None:
+        """Set up test fixtures with RestResource instance and configuration."""
         self.options = {
             "DOMAIN": "https://example.com",
             "API_PREFIX": "api/v1",
@@ -27,23 +30,26 @@ class ResourceTestCase(unittest.TestCase):
             token="my-token",
         )
 
-    def test_url(self):
+    def test_url(self) -> None:
+        """Test URL generation for resource."""
         url = self.base_resource.url()
-        self.assertEqual(url, "https://example.com/api/v1/test/")
+        assert url == "https://example.com/api/v1/test/"
 
-    def test_headers(self):
+    def test_headers(self) -> None:
+        """Test authorization header generation with JWT token."""
         expected_headers = {
             "Content-Type": "application/json",
             "Authorization": "JWT my-token",
         }
 
         headers = self.base_resource._get_headers()
-        self.assertEqual(headers, expected_headers)
+        assert headers == expected_headers
 
     @requests_mock.Mocker()
-    def test_get_200(self, m):
+    def test_get_200(self, m: requests_mock.Mocker) -> None:
+        """Test successful GET request with 200 response."""
         payload = {"result": ["a", "b", "c"]}
         m.get("https://example.com/api/v1/test/", text=json.dumps(payload))
 
         resp = self.base_resource.get()
-        self.assertEqual(resp["result"], ["a", "b", "c"])
+        assert resp["result"] == ["a", "b", "c"]

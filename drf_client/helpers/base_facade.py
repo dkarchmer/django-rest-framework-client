@@ -1,12 +1,16 @@
-"""Hold static information that can be accessed by any part of the package.
+"""
+Hold static information that can be accessed by any part of the package.
 
 A facade is an object that serves as a front-facing interface masking more complex
 underlying or structural code.
 """
 
-from argparse import Namespace
+from typing import TYPE_CHECKING
 
 from drf_client.connection import Api as RestApi
+
+if TYPE_CHECKING:
+    from argparse import Namespace
 
 
 class BaseFacade:
@@ -17,7 +21,7 @@ class BaseFacade:
     cmd_args: Namespace | None = None
 
     @staticmethod
-    def initialize_api(api_options: dict, cmd_args: Namespace | None = None):
+    def initialize_api(api_options: dict, cmd_args: Namespace | None = None) -> None:
         """Initialize API with the given options."""
         if BaseFacade.api is None:
             # Only initialize ones

@@ -14,5 +14,6 @@ venv/
 .tox/
 .cache/
 .coverage
-.pdm-python
 
+/.python-version
+/.claude/settings.local.json

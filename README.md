@@ -33,9 +33,6 @@ python -m pip install django-rest-framework-client
 
 # Using uv
 uv add django-rest-framework-client
-
-# Using PDM
-pdm add django-rest-framework-client
 ```
 
 ## Usage Guide
@@ -237,16 +234,17 @@ python myscript.py -u <USERNAME> --foo bar
 
 ## Development
 
-`django-rest-framework-client` uses `pdm` for dependency management and testing.
-Make sure to [install `pdm`](https://pdm-project.org/en/latest/#installation) and run `pdm sync` to install dependencies.
+`django-rest-framework-client` uses `uv` for dependency management and testing.
+Make sure to [install `uv`](https://docs.astral.sh/uv/getting-started/installation/) and run `uv sync` to install dependencies.
 
-To test, run python setup.py test or to run coverage analysis:
+To test, run coverage analysis, and lint:
 
 ```bash
-pdm sync
+uv sync
 
-pdm test
-pdm lint
+uv run pytest
+uv run ruff check
+uv run ty check
 
 # Install pre-commit hooks
 pre-commit install
