@@ -1,7 +1,9 @@
+"""Example of using django-rest-framework-client to interact with a Django REST Framework API."""
+
 import getpass
 import logging
+import pprint
 import sys
-from pprint import pprint
 
 from drf_client.connection import Api as RestApi
 
@@ -32,17 +34,16 @@ ok = c.login(username=username, password=password)
 if ok:
     # GET some data
     my_objects = c.org.get()
+    assert isinstance(my_objects, dict)
     for obj in my_objects["results"]:
-        pprint(obj)
+        logger.info(pprint.pformat(obj))
         logger.info("------------------------------")
 
-    logger.info("------------------------------")
     logger.info("------------------------------")
     # If the URL includes "-", add under parenthesis:
     # GET: /api/v1/someresource/some-path/
     my_object = c.someresource("some-path").get()
-    pprint(my_object)
-    logger.info("------------------------------")
+    logger.info(pprint.pformat(obj))
     logger.info("------------------------------")
 
     payload = {
@@ -51,7 +52,7 @@ if ok:
     }
 
     resp = c.someresource.post(data=payload)
-    pprint(resp)
+    logger.info(pprint.pformat(resp))
 
     logger.info("------------------------------")
 

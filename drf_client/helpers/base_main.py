@@ -1,17 +1,24 @@
+"""Boilerplate code for basic scripts."""
+
 import argparse
 import getpass
 import logging
 import os
 import sys
+import typing
 from urllib.parse import urlparse
+
+from drf_client.connection import Api
+from drf_client.exceptions import CriticalError
 
 from .base_facade import BaseFacade
 
-LOG = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class BaseMain:
-    """Boiler plate code for basic scripts.
+    """
+    Boilerplate code for basic scripts.
 
     The class assumes that most scripts include the basic following flow:
 
@@ -21,10 +28,10 @@ class BaseMain:
     - Do something after logging in
     """
 
-    parser = None
-    args = None
-    api = None
-    options = {
+    parser: argparse.ArgumentParser
+    args: argparse.Namespace
+    api: Api
+    options: typing.ClassVar[dict] = {
         "DOMAIN": None,
         "API_PREFIX": "api/v1",
         "TOKEN_TYPE": "jwt",
@@ -36,14 +43,16 @@ class BaseMain:
     }
     logging_level = logging.INFO
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
-        Initialize Logging configuration
-        Initialize argument parsing
-        Process any extra arguments
-        Only hard codes one required argument: --user
-        Additional arguments can be configured by overwriting the add_extra_args() method
-        Logging configuration can be changed by overwritting the config_logging() method
+        Initialize the BaseMain class.
+
+        Initialize logging configuration.
+        Initialize argument parsing.
+        Process any extra arguments.
+        Only hard codes one required argument: --user.
+        Additional arguments can be configured by overwriting the add_extra_args() method.
+        Logging configuration can be changed by overwriting the config_logging() method.
         """
         self.parser = argparse.ArgumentParser(description=__doc__)
         self.parser.add_argument(
@@ -75,58 +84,66 @@ class BaseMain:
         self.config_logging()
         self.domain = ""
 
-    def _critical_exit(self, msg):
-        """Exit with an error."""
-        LOG.error(msg)
-        sys.exit(1)
-
-    def main(self):
+    def main(self) -> None:
         """
-        Main function to call to initiate execution.
+        Initiate execution.
+
         1. Get domain name and use to instantiate Api object
         2. Call before_login to allow for work before logging in
         3. Logging into the server
-        4. Call after_loging to do actual work with server data
+        4. Call after_loging to do actual work with server data.
         """
-        self.domain = self.get_domain()
-        # Create a static pointer to the API for global access
-        BaseFacade.initialize_api(api_options=self.get_options(), cmd_args=self.args)
-        self.api = BaseFacade.api
-        self.before_login()
-        ok = self.login()
-        if ok:
-            self.after_login()
+        try:
+            self.domain = self.get_domain()
+            # Create a static pointer to the API for global access
+            BaseFacade.initialize_api(api_options=self.get_options(), cmd_args=self.args)
+            assert BaseFacade.api is not None
+            self.api = BaseFacade.api
+            self.before_login()
+            ok = self.login()
+            if ok:
+                self.after_login()
+        except CriticalError:
+            # Error already logged, exit with error code
+            sys.exit(1)
 
     # Following functions can be overwritten if needed
     # ================================================
 
-    def get_options(self):
-        """Add domain to Api options."""
+    def get_options(self) -> dict:
+        """
+        Add domain to Api options.
+
+        Returns:
+            A dictionary of options to use for the API connection.
+
+        """
         options = self.options
         options["DOMAIN"] = self.domain
         return options
 
-    def config_logging(self):
-        """
-        Overwrite to change the way the logging package is configured
-        :return: Nothing
-        """
+    def config_logging(self) -> None:
+        """Overwrite to change the way the logging package is configured."""
         logging.basicConfig(
             level=self.logging_level,
             format="[%(asctime)-15s] %(levelname)-6s %(message)s",
             datefmt="%d/%b/%Y %H:%M:%S",
         )
 
-    def add_extra_args(self):
+    def add_extra_args(self) -> None:
         """
-        Overwrite to change the way extra arguments are added to the args parser
+        Overwrite to change the way extra arguments are added to the args parser.
+
         :return: Nothing
         """
-        pass
 
     def get_domain(self) -> str:
         """
-        Figure out server domain URL based on --server and --customer args
+        Figure out server domain URL based on --server and --customer args.
+
+        Returns:
+            The domain name to use for the API connection.
+
         """
         if not urlparse(self.args.server).scheme:
             return f"https://{self.args.server}"
@@ -134,33 +151,45 @@ class BaseMain:
 
     def login(self) -> bool:
         """
-        Get password from user and login
+        Log in to the server using either a token from an environment variable or by asking the user for a password.
+
+        Returns:
+            True if login was successful, False otherwise.
+
+        Raises:
+            CriticalError: If the token option is used but the required environment variable is not set.
+
         """
         if self.args.use_token:
             token = os.getenv("DRF_CLIENT_AUTH_TOKEN")
             if not token:
-                self._critical_exit("DRF_CLIENT_AUTH_TOKEN must be defined as environment variable.")
+                msg = "DRF_CLIENT_AUTH_TOKEN must be defined as environment variable"
+                raise CriticalError(msg)
             self.api.set_token(token)
-            LOG.info("Bearer Token has been set.")
+            logger.info("Bearer Token has been set.")
             ok = True
         else:
             password = getpass.getpass()
             ok = self.api.login(username=self.args.username, password=password)
             if ok:
-                LOG.info("Welcome {0}.".format(self.args.username))
+                logger.info("Welcome %s", self.args.username)
         return ok
 
-    def before_login(self):
+    def before_login(self) -> None:
         """
-        Overwrite to do work after parsing, but before logging in to the server
-        This is a good place to do additional custom argument checks
-        :return: Nothing
-        """
-        pass
+        Overwrite to do work after parsing, but before logging in to the server.
 
-    def after_login(self):
-        """
-        This function MUST be overwritten to do actual work after logging into the Server
+        This is a good place to do additional custom argument checks
+
         :return: Nothing
         """
-        LOG.warning("No actual work done")
+
+    def after_login(self) -> None:
+        """
+        Do work after logging in to the server.
+
+        This function MUST be overwritten to do actual work after logging into the Server.
+
+        :return: Nothing
+        """
+        logger.warning("No actual work done")

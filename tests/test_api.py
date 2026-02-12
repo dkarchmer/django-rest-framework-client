@@ -1,282 +1,314 @@
+"""Test cases for the Api class."""
+
 import asyncio
 import json
-import unittest
 
 import httpx
-import requests_mock
+import pytest
 import respx
+from requests_mock import Mocker
 
 from drf_client.connection import Api
 from drf_client.exceptions import HttpClientError, HttpServerError
 
 
-class ApiTestCase(unittest.TestCase):
-    api = None
+@pytest.fixture
+def api_options() -> dict:
+    """
+    Provide API configuration options for tests.
 
-    def setUp(self):
-        options = {
-            "DOMAIN": "https://example.com",
-            "API_PREFIX": "api/v1",
-            "TOKEN_TYPE": "jwt",
-            "TOKEN_FORMAT": "JWT {token}",
-            "LOGIN": "auth/login/",
-            "LOGOUT": "auth/logout/",
-            "USE_DASHES": False,
-        }
+    Returns:
+        A dictionary containing API configuration options.
 
-        self.api = Api(options=options)
+    """
+    return {
+        "DOMAIN": "https://example.com",
+        "API_PREFIX": "api/v1",
+        "TOKEN_TYPE": "jwt",
+        "TOKEN_FORMAT": "JWT {token}",
+        "LOGIN": "auth/login/",
+        "LOGOUT": "auth/logout/",
+        "USE_DASHES": False,
+    }
 
-    def tearDown(self):
-        self.api = None
 
-    def test_init(self):
-        self.assertEqual(self.api.base_url, "https://example.com/api/v1")
-        self.assertTrue(self.api.use_token)
-        self.assertEqual(self.api.options["TOKEN_TYPE"], "jwt")
-        self.assertEqual(self.api.options["TOKEN_FORMAT"], "JWT {token}")
+@pytest.fixture
+def api(api_options: dict) -> Api:
+    """
+    Provide an Api instance for tests.
 
-    def test_set_token(self):
-        self.assertEqual(self.api.token, None)
-        self.api.set_token("big-token")
-        self.assertEqual(self.api.token, "big-token")
+    Returns:
+        A configured Api instance for testing.
 
-    @requests_mock.Mocker()
-    def test_login(self, m):
+    """
+    return Api(options=api_options)
+
+
+class TestApi:
+    """Test the Api class for DRF client functionality."""
+
+    def test_init(self, api: Api) -> None:
+        """Test Api initialization with correct base URL and options."""
+        assert api.base_url == "https://example.com/api/v1"
+        assert api.use_token
+        assert api.options["TOKEN_TYPE"] == "jwt"
+        assert api.options["TOKEN_FORMAT"] == "JWT {token}"
+
+    def test_set_token(self, api: Api) -> None:
+        """Test setting authentication token."""
+        assert api.token is None
+        api.set_token("big-token")
+        assert api.token == "big-token"
+
+    def test_login(self, api: Api, requests_mock: Mocker) -> None:
+        """Test successful login with username and password."""
         payload = {"jwt": "big-token", "username": "user1"}
-        m.post("https://example.com/api/v1/auth/login/", text=json.dumps(payload))
+        requests_mock.post("https://example.com/api/v1/auth/login/", text=json.dumps(payload))
 
-        ok = self.api.login(username="user1@test.com", password="pass")
-        self.assertTrue(ok)
-        self.assertEqual(self.api.username, "user1@test.com")
-        self.assertEqual(self.api.token, "big-token")
+        ok = api.login(username="user1@test.com", password="pass")
+        assert ok
+        assert api.username == "user1@test.com"
+        assert api.token == "big-token"
 
-    @requests_mock.Mocker()
-    def test_logout(self, m):
+    def test_logout(self, api: Api, requests_mock: Mocker) -> None:
+        """Test logout clears username and token."""
         payload = {"jwt": "big-token", "username": "user1"}
-        m.post("https://example.com/api/v1/auth/login/", text=json.dumps(payload))
-        m.post("https://example.com/api/v1/auth/logout/", status_code=204)
+        requests_mock.post("https://example.com/api/v1/auth/login/", text=json.dumps(payload))
+        requests_mock.post("https://example.com/api/v1/auth/logout/", status_code=204)
 
-        ok = self.api.login(username="user1@test.com", password="pass")
-        self.assertTrue(ok)
+        ok = api.login(username="user1@test.com", password="pass")
+        assert ok
 
-        self.api.logout()
-        self.assertEqual(self.api.username, None)
-        self.assertEqual(self.api.token, None)
+        api.logout()
+        assert api.username is None
+        assert api.token is None
 
-    @requests_mock.Mocker()
-    def test_get_list(self, m):
+    def test_get_list(self, api: Api, requests_mock: Mocker) -> None:
+        """Test GET request to list endpoint."""
         payload = {"result": ["a", "b", "c"]}
-        m.get("https://example.com/api/v1/test/", text=json.dumps(payload))
+        requests_mock.get("https://example.com/api/v1/test/", text=json.dumps(payload))
 
-        resp = self.api.test.get()
-        self.assertEqual(resp["result"], ["a", "b", "c"])
+        resp = api.test.get()
+        assert isinstance(resp, dict)
+        assert resp["result"] == ["a", "b", "c"]
 
-    @requests_mock.Mocker()
-    def test_get_detail(self, m):
+    def test_get_detail(self, api: Api, requests_mock: Mocker) -> None:
+        """Test GET request to detail endpoint with resource ID."""
         payload = {"a": "b", "c": "d"}
-        m.get("https://example.com/api/v1/test/my-detail/", text=json.dumps(payload))
+        requests_mock.get("https://example.com/api/v1/test/my-detail/", text=json.dumps(payload))
 
-        resp = self.api.test("my-detail").get()
-        self.assertEqual(resp, {"a": "b", "c": "d"})
+        resp = api.test("my-detail").get()
+        assert resp == {"a": "b", "c": "d"}
 
-    @requests_mock.Mocker()
-    def test_get_detail_with_action(self, m):
+    def test_get_detail_with_action(self, api: Api, requests_mock: Mocker) -> None:
+        """Test GET request to detail endpoint with custom action."""
         payload = {"a": "b", "c": "d"}
-        m.get(
+        requests_mock.get(
             "https://example.com/api/v1/test/my-detail/action/",
             text=json.dumps(payload),
         )
 
-        # resp = self.api.test('my-detail').action.url()
-        # self.assertEqual(resp, 'https://example.com/api/v1/test/my-detail/action/')
-        resp = self.api.test("my-detail").action.get()
-        self.assertEqual(resp, {"a": "b", "c": "d"})
+        resp = api.test("my-detail").action.get()
+        assert resp == {"a": "b", "c": "d"}
 
-    @requests_mock.Mocker()
-    def test_get_with_use_dashes(self, m):
-        """test that we can replace underscore with dashes."""
-        self.api.options["USE_DASHES"] = True
+    def test_get_with_use_dashes(self, api: Api, requests_mock: Mocker) -> None:
+        """Test that we can replace underscore with dashes."""
+        api.options["USE_DASHES"] = True
         payload = {"a": "b", "c": "d"}
-        m.get(
+        requests_mock.get(
             "https://example.com/api/v1/test-one/my-detail/action/",
             text=json.dumps(payload),
         )
 
-        # resp = self.api.test('my-detail').action.url()
-        # self.assertEqual(resp, 'https://example.com/api/v1/test/my-detail/action/')
-        resp = self.api.test_one.my_detail.action.get()
-        self.assertEqual(resp, {"a": "b", "c": "d"})
+        resp = api.test_one.my_detail.action.get()
+        assert resp == {"a": "b", "c": "d"}
 
-    @requests_mock.Mocker()
-    def test_get_detail_with_extra_args(self, m):
+    def test_get_detail_with_extra_args(self, api: Api, requests_mock: Mocker) -> None:
+        """Test GET request with extra query arguments."""
         payload = {"a": "b", "c": "d"}
-        m.get("https://example.com/api/v1/test/my-detail/", text=json.dumps(payload))
+        requests_mock.get("https://example.com/api/v1/test/my-detail/", text=json.dumps(payload))
 
-        resp = self.api.test("my-detail").get(foo="bar")
-        self.assertEqual(resp, {"a": "b", "c": "d"})
+        resp = api.test("my-detail").get(foo="bar")
+        assert resp == {"a": "b", "c": "d"}
 
-    @requests_mock.Mocker()
-    def test_post(self, m):
+    def test_post(self, api: Api, requests_mock: Mocker) -> None:
+        """Test POST request to create a resource."""
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
-        m.post("https://example.com/api/v1/test/", text=json.dumps(result))
+        requests_mock.post("https://example.com/api/v1/test/", text=json.dumps(result))
 
-        resp = self.api.test.post(payload)
-        self.assertEqual(resp["id"], 1)
+        resp = api.test.post(payload)
+        assert isinstance(resp, dict)
+        assert resp["id"] == 1
 
-    @requests_mock.Mocker()
-    def test_patch(self, m):
+    def test_patch(self, api: Api, requests_mock: Mocker) -> None:
+        """Test PATCH request to partially update a resource."""
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
-        m.patch("https://example.com/api/v1/test/my-detail/", text=json.dumps(result))
+        requests_mock.patch("https://example.com/api/v1/test/my-detail/", text=json.dumps(result))
 
-        resp = self.api.test("my-detail").patch(payload)
-        self.assertEqual(resp["id"], 1)
+        resp = api.test("my-detail").patch(payload)
+        assert isinstance(resp, dict)
+        assert resp["id"] == 1
 
-    @requests_mock.Mocker()
-    def test_put(self, m):
+    def test_put(self, api: Api, requests_mock: Mocker) -> None:
+        """Test PUT request to fully update a resource."""
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
-        m.put("https://example.com/api/v1/test/my-detail/", text=json.dumps(result))
+        requests_mock.put("https://example.com/api/v1/test/my-detail/", text=json.dumps(result))
 
-        resp = self.api.test("my-detail").put(payload)
-        self.assertEqual(resp["id"], 1)
+        resp = api.test("my-detail").put(payload)
+        assert isinstance(resp, dict)
+        assert resp["id"] == 1
 
-    @requests_mock.Mocker()
-    def test_delete(self, m):
+    def test_delete(self, api: Api, requests_mock: Mocker) -> None:
+        """Test DELETE request to remove a resource."""
         result = {"id": 1}
-        m.delete("https://example.com/api/v1/test/my-detail/", text=json.dumps(result))
+        requests_mock.delete("https://example.com/api/v1/test/my-detail/", text=json.dumps(result))
 
-        deleted = self.api.test("my-detail").delete()
-        self.assertTrue(deleted)
+        deleted = api.test("my-detail").delete()
+        assert deleted
 
         result = {"id": 2}
-        m.delete("https://example.com/api/v1/test/my-detail2/", text=json.dumps(result))
+        requests_mock.delete("https://example.com/api/v1/test/my-detail2/", text=json.dumps(result))
 
-        deleted = self.api.test("my-detail2").delete(data={"foo": "bar"})
-        self.assertTrue(deleted)
+        deleted = api.test("my-detail2").delete(data={"foo": "bar"})
+        assert deleted
 
-    @requests_mock.Mocker()
-    def test_post_with_error(self, m):
+    def test_post_with_error(self, api: Api, requests_mock: Mocker) -> None:
+        """Test POST request error handling for 4xx and 5xx responses."""
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
-        m.post("https://example.com/api/v1/test/", status_code=400, text=json.dumps(result))
+        requests_mock.post("https://example.com/api/v1/test/", status_code=400, text=json.dumps(result))
 
-        with self.assertRaises(HttpClientError):
-            self.api.test.post(payload)
+        with pytest.raises(HttpClientError):
+            api.test.post(payload)
 
-        m.post("https://example.com/api/v1/test/", status_code=404, text=json.dumps(result))
+        requests_mock.post("https://example.com/api/v1/test/", status_code=404, text=json.dumps(result))
 
-        with self.assertRaises(HttpClientError):
-            self.api.test.post(payload)
+        with pytest.raises(HttpClientError):
+            api.test.post(payload)
 
-        m.post("https://example.com/api/v1/test/", status_code=500, text=json.dumps(result))
+        requests_mock.post("https://example.com/api/v1/test/", status_code=500, text=json.dumps(result))
 
-        with self.assertRaises(HttpServerError):
-            self.api.test.post(payload)
+        with pytest.raises(HttpServerError):
+            api.test.post(payload)
 
     @respx.mock
-    def test_async_get_list(self):
+    def test_async_get_list(self, api: Api) -> None:
+        """Test async GET request to list endpoint."""
         payload = {"result": ["a", "b", "c"]}
         respx.get("https://example.com/api/v1/test/").mock(return_value=httpx.Response(200, json=payload))
 
-        resp = asyncio.run(self.api.test.async_get())
-        self.assertEqual(resp["result"], ["a", "b", "c"])
+        resp = asyncio.run(api.test.async_get())
+        assert isinstance(resp, dict)
+        assert resp["result"] == ["a", "b", "c"]
 
     @respx.mock
-    def test_async_get_detail(self):
+    def test_async_get_detail(self, api: Api) -> None:
+        """Test async GET request to detail endpoint."""
         payload = {"a": "b", "c": "d"}
         respx.get("https://example.com/api/v1/test/my-detail/").mock(return_value=httpx.Response(200, json=payload))
-        resp = asyncio.run(self.api.test("my-detail").async_get())
-        self.assertEqual(resp, {"a": "b", "c": "d"})
+        resp = asyncio.run(api.test("my-detail").async_get())
+        assert resp == {"a": "b", "c": "d"}
 
     @respx.mock
-    def test_async_get_detail_with_action(self):
+    def test_async_get_detail_with_action(self, api: Api) -> None:
+        """Test async GET request with custom action and URL verification."""
         payload = {"a": "b", "c": "d"}
         respx.get("https://example.com/api/v1/test/my-detail/").mock(return_value=httpx.Response(200, json=payload))
-        resp = self.api.test("my-detail").action.url()
-        self.assertEqual(resp, "https://example.com/api/v1/test/my-detail/action/")
-        resp = asyncio.run(self.api.test("my-detail").async_get())
-        self.assertEqual(resp, {"a": "b", "c": "d"})
+        resp = api.test("my-detail").action.url()
+        assert resp == "https://example.com/api/v1/test/my-detail/action/"
+        resp = asyncio.run(api.test("my-detail").async_get())
+        assert resp == {"a": "b", "c": "d"}
 
     @respx.mock
-    def test_async_get_with_use_dashes(self):
-        """test that we can replace underscore with dashes."""
-        self.api.options["USE_DASHES"] = True
+    def test_async_get_with_use_dashes(self, api: Api) -> None:
+        """Test that we can replace underscore with dashes in async requests."""
+        api.options["USE_DASHES"] = True
         payload = {"a": "b", "c": "d"}
         respx.get("https://example.com/api/v1/test-one/my-detail/action/").mock(
             return_value=httpx.Response(200, json=payload)
         )
-        resp = asyncio.run(self.api.test_one.my_detail.action.async_get())
-        self.assertEqual(resp, {"a": "b", "c": "d"})
+        resp = asyncio.run(api.test_one.my_detail.action.async_get())
+        assert resp == {"a": "b", "c": "d"}
 
     @respx.mock
-    def test_async_get_detail_with_extra_args(self):
+    def test_async_get_detail_with_extra_args(self, api: Api) -> None:
+        """Test async GET request with extra query arguments."""
         payload = {"a": "b", "c": "d"}
         respx.get("https://example.com/api/v1/test/my-detail/").mock(return_value=httpx.Response(200, json=payload))
-        resp = asyncio.run(self.api.test("my-detail").async_get(foo="bar"))
-        self.assertEqual(resp, {"a": "b", "c": "d"})
+        resp = asyncio.run(api.test("my-detail").async_get(foo="bar"))
+        assert resp == {"a": "b", "c": "d"}
 
     @respx.mock
-    def test_async_post(self):
+    def test_async_post(self, api: Api) -> None:
+        """Test async POST request to create a resource."""
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
         respx.post("https://example.com/api/v1/test/").mock(return_value=httpx.Response(200, json=result))
-        resp = asyncio.run(self.api.test.async_post(payload))
-        self.assertEqual(resp["id"], 1)
+        resp = asyncio.run(api.test.async_post(payload))
+        assert isinstance(resp, dict)
+        assert resp["id"] == 1
 
     @respx.mock
-    def test_async_patch(self):
+    def test_async_patch(self, api: Api) -> None:
+        """Test async PATCH request to partially update a resource."""
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
         respx.patch("https://example.com/api/v1/test/my-detail/").mock(return_value=httpx.Response(200, json=result))
-        resp = asyncio.run(self.api.test("my-detail").async_patch(payload))
+        resp = asyncio.run(api.test("my-detail").async_patch(payload))
 
-        self.assertEqual(resp["id"], 1)
+        assert isinstance(resp, dict)
+        assert resp["id"] == 1
 
     @respx.mock
-    def test_async_put(self):
+    def test_async_put(self, api: Api) -> None:
+        """Test async PUT request to fully update a resource."""
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
         respx.put("https://example.com/api/v1/test/my-detail/").mock(return_value=httpx.Response(200, json=result))
 
-        resp = asyncio.run(self.api.test("my-detail").async_put(payload))
-        self.assertEqual(resp["id"], 1)
+        resp = asyncio.run(api.test("my-detail").async_put(payload))
+        assert isinstance(resp, dict)
+        assert resp["id"] == 1
 
     @respx.mock
-    def test_async_delete(self):
+    def test_async_delete(self, api: Api) -> None:
+        """Test async DELETE request with various response codes."""
         result = {"id": 1}
         respx.delete("https://example.com/api/v1/test/my-detail/").mock(return_value=httpx.Response(200, json=result))
 
-        deleted = asyncio.run(self.api.test("my-detail").async_delete())
+        deleted = asyncio.run(api.test("my-detail").async_delete())
 
-        self.assertTrue(deleted)
+        assert deleted
         respx.delete("https://example.com/api/v1/test/my-detail/").mock(return_value=httpx.Response(204, json=result))
 
-        deleted = asyncio.run(self.api.test("my-detail").async_delete())
-        self.assertTrue(deleted)
+        deleted = asyncio.run(api.test("my-detail").async_delete())
+        assert deleted
 
         respx.delete("https://example.com/api/v1/test/my-detail/").mock(return_value=httpx.Response(400, json=result))
 
-        deleted = asyncio.run(self.api.test("my-detail").async_delete())
-        self.assertFalse(deleted)
+        deleted = asyncio.run(api.test("my-detail").async_delete())
+        assert not deleted
 
     @respx.mock
-    def test_async_post_with_error(self):
+    def test_async_post_with_error(self, api: Api) -> None:
+        """Test async POST request error handling for 4xx and 5xx responses."""
         payload = {"foo": ["a", "b", "c"]}
         result = {"id": 1}
 
         # 400 Bad Request
         respx.post("https://example.com/api/v1/test/").mock(return_value=httpx.Response(400, json=result))
-        with self.assertRaises(HttpClientError):
-            asyncio.run(self.api.test.async_post(payload))
+        with pytest.raises(HttpClientError):
+            asyncio.run(api.test.async_post(payload))
 
         # 404 Not Found
         respx.post("https://example.com/api/v1/test/").mock(return_value=httpx.Response(404, json=result))
-        with self.assertRaises(HttpClientError):
-            asyncio.run(self.api.test.async_post(payload))
+        with pytest.raises(HttpClientError):
+            asyncio.run(api.test.async_post(payload))
 
         # 500 Internal Server Error
         respx.post("https://example.com/api/v1/test/").mock(return_value=httpx.Response(500, json=result))
-        with self.assertRaises(HttpServerError):
-            asyncio.run(self.api.test.async_post(payload))
+        with pytest.raises(HttpServerError):
+            asyncio.run(api.test.async_post(payload))
