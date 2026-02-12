@@ -12,7 +12,7 @@ Package is based on https://github.com/samgiles/slumber, but enhanced to support
     * django-rest-framework's own tokens: `rest_framework.authentication.TokenAuthentication`
     * JWT tokens: `rest_framework_jwt.authentication.JSONWebTokenAuthentication`
 
-* Support for arguments (e.g. `?name1=val1&name2=val2`)
+* Support for query arguments (e.g. `?name1=val1&name2=val2`)
 
 * Support for custom methods (e.g. ``/api/v1/object/custom/`)
 
