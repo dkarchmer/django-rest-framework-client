@@ -1,3 +1,11 @@
+### v0.13.0 (2026-02-12)
+  * Support for Python 3.13+
+  * Converts the project to use uv instead of pdm
+  * Adds and improves static typing
+  * Fixes ruff configuration
+  * Cleans up unused code and files
+  * Improves the documentation
+
 ### v0.12.0 (2025-04-07)
   * Add support to coroutines
 
