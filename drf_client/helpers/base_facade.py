@@ -5,12 +5,9 @@ A facade is an object that serves as a front-facing interface masking more compl
 underlying or structural code.
 """
 
-from typing import TYPE_CHECKING
+from argparse import Namespace
 
 from drf_client.connection import Api as RestApi
-
-if TYPE_CHECKING:
-    from argparse import Namespace
 
 
 class BaseFacade:

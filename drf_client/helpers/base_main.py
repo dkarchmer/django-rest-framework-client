@@ -8,12 +8,10 @@ import sys
 import typing
 from urllib.parse import urlparse
 
+from drf_client.connection import Api
 from drf_client.exceptions import CriticalError
 
 from .base_facade import BaseFacade
-
-if typing.TYPE_CHECKING:
-    from drf_client.connection import Api
 
 logger = logging.getLogger(__name__)
 
